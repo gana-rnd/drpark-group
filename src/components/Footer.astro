@@ -1,0 +1,46 @@
+---
+// 다크 푸터 — 그룹은 "함께 쓰는 이름"이라는 정의 + 세 회사 링크 + 부지 주소. 그룹 전화·메일은 없다(문의는 회사로).
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { group, companies } from '../data/group';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="ftr">
+  <div class="container grid">
+    <div>
+      <p class="wordmark on-dark"><span class="g">Dr. Park</span> <span class="n">Group</span></p>
+      <p class="note">{t.footer.note}</p>
+    </div>
+    <div>
+      <p class="h">{t.footer.companies}</p>
+      <ul>{companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a></li>)}</ul>
+    </div>
+    <div>
+      <p class="h">{t.footer.site}</p>
+      <address>
+        {t.footer.addr1}<br />
+        {t.footer.addr2}
+      </address>
+    </div>
+  </div>
+  <div class="container base">
+    <p>&copy; {year} {group.name}</p>
+    <p>{t.footer.audience}</p>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--navy); color: #c9d3e2; margin-top: var(--s10); padding-block: var(--s8) var(--s6); }
+  .grid { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: var(--s8); }
+  .note { font-size: var(--text-sm); max-width: 52ch; margin-top: var(--s3); }
+  .h { font-size: var(--text-sm); font-weight: 600; color: #ffffff; margin-bottom: var(--s4); }
+  ul { list-style: none; display: flex; flex-direction: column; gap: var(--s2); }
+  a { font-size: var(--text-sm); transition: color var(--dur) var(--ease); }
+  a:hover { color: #fff; }
+  address { font-style: normal; font-size: var(--text-sm); }
+  .base { display: flex; justify-content: space-between; gap: var(--s4); margin-top: var(--s8); padding-top: var(--s5); border-top: 1px solid rgba(255,255,255,.12); font-size: var(--text-xs); color: #8ea0bd; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; gap: var(--s6); } .base { flex-direction: column; } }
+</style>

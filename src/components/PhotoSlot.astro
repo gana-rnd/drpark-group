@@ -1,0 +1,32 @@
+---
+// 사진이 준비되지 않은 자리: 촬영 방향을 적은 점선 슬롯. src가 오면 사진 + 교체 안내 캡션.
+interface Props { note: string; ratio?: string; src?: string; alt?: string; caption?: string; }
+const {
+  note,
+  ratio = '4 / 5',
+  src,
+  alt = '',
+  caption = 'Photography direction — replace with site photography before public launch',
+} = Astro.props;
+---
+
+{src ? (
+  <figure class="photo-direction">
+    <div class="frame" style={`aspect-ratio: ${ratio};`}><img src={src} alt={alt} loading="lazy" /></div>
+    <figcaption>{caption}</figcaption>
+  </figure>
+) : (
+  <div class="slot" style={`aspect-ratio: ${ratio};`} role="img" aria-label={`Photo slot: ${note}`}>
+    <p class="note">[{note}]</p>
+  </div>
+)}
+
+<style>
+  .photo-direction { margin: 0; }
+  .frame { overflow: hidden; background: var(--paper-2); border-radius: 2px; }
+  .frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out-expo); }
+  .photo-direction:hover img { transform: scale(1.035); }
+  figcaption { margin-top: var(--s2); font-size: 0.6875rem; line-height: 1.45; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .slot { background: #fff; border: 1px dashed var(--ink-3); border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: var(--s5); }
+  .note { margin: 0; max-width: 40ch; font-size: var(--text-sm); line-height: 1.7; color: var(--ink-2); text-align: center; text-wrap: balance; }
+</style>

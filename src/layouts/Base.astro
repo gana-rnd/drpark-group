@@ -1,0 +1,131 @@
+---
+import '../styles/global.css';
+import '../styles/motion.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { group, companies } from '../data/group';
+import { getLangFromUrl, useTranslations, stripLangFromPath, localizePath, languages } from '../i18n/utils';
+
+interface Props { title?: string; description?: string; hasHero?: boolean; }
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const { title = t.meta.title, description = t.meta.description, hasHero = false } = Astro.props;
+const currentPath = stripLangFromPath(Astro.url.pathname);
+const siteBase = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const canonicalUrl = `${siteBase}${localizePath(currentPath, lang)}`;
+const ogLocale: Record<string, string> = { en: 'en_US', ko: 'ko_KR' };
+// 한국어 페이지에만 Noto Sans KR 추가. 라틴 글리프는 Manrope.
+const fontsHref = `https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500${lang === 'ko' ? '&family=Noto+Sans+KR:wght@400;500;600;700' : ''}&display=swap`;
+// 조직 스키마 — 지분 관계를 함의하는 subOrganization은 쓰지 않는다(6사 통합자료 §3-6). 세 회사는 sameAs 링크로만.
+const orgSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: group.name,
+  url: siteBase,
+  founder: { '@type': 'Person', name: 'Yongho Park' },
+  address: { '@type': 'PostalAddress', streetAddress: group.site.line1, addressLocality: 'Seongnam-si', addressRegion: 'Gyeonggi-do', postalCode: '13215', addressCountry: 'KR' },
+  sameAs: companies.map((c) => c.url),
+});
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- JS 활성 표시: 이 한 줄이 실행되어야만 motion.css의 숨김 초기 상태가 적용된다. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={group.name} />
+    <meta property="og:locale" content={ogLocale[lang] ?? 'en_US'} />
+    <script type="application/ld+json" set:html={orgSchema} />
+    {languages.map((l) => (
+      <link rel="alternate" hreflang={l.code} href={`${siteBase}${localizePath(currentPath, l.code)}`} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${siteBase}${currentPath}`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontsHref} rel="stylesheet" />
+  </head>
+  <body class={hasHero ? 'has-hero' : undefined}>
+    <a href="#main" class="skip">Skip to content</a>
+    <Header />
+    <main id="main"><slot /></main>
+    <Footer />
+    <!-- 모션 런타임 — GANA R&D Base.astro와 동일 (리빌 · 카운트업 · 헤더 스크롤 상태 · CTA 글로우) -->
+    <script is:inline>
+    (() => {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const boot = () => { document.body.classList.add('is-loaded'); };
+      if (document.readyState === 'complete' || document.readyState === 'interactive') requestAnimationFrame(boot);
+      else window.addEventListener('DOMContentLoaded', boot, { once: true });
+
+      const hdr = document.querySelector('.hdr');
+      if (hdr) {
+        let ticking = false;
+        const onScroll = () => {
+          if (ticking) return; ticking = true;
+          requestAnimationFrame(() => { hdr.classList.toggle('is-scrolled', window.scrollY > 24); ticking = false; });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+
+      if (reduced) {
+        document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => el.classList.add('is-in'));
+        return;
+      }
+      const revealIO = new IntersectionObserver((entries) => {
+        for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-in'); revealIO.unobserve(entry.target); }
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => revealIO.observe(el));
+
+      const easeOutExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+      const animateCount = (el) => {
+        const target = parseFloat(el.dataset.count); const dur = 1600; const start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / dur, 1);
+          el.firstChild.nodeValue = String(Math.round(target * easeOutExpo(p)));
+          if (p < 1) requestAnimationFrame(tick); else el.firstChild.nodeValue = String(target);
+        };
+        requestAnimationFrame(tick);
+      };
+      const countIO = new IntersectionObserver((entries) => {
+        for (const entry of entries) if (entry.isIntersecting) { animateCount(entry.target); countIO.unobserve(entry.target); }
+      }, { threshold: 0.4 });
+      document.querySelectorAll('[data-count]').forEach((el) => {
+        if (el.firstChild && el.firstChild.nodeType === Node.TEXT_NODE) el.firstChild.nodeValue = '0';
+        countIO.observe(el);
+      });
+
+      const cta = document.querySelector('.cta');
+      if (cta) {
+        let ctaTicking = false;
+        const onCtaScroll = () => {
+          if (ctaTicking) return; ctaTicking = true;
+          requestAnimationFrame(() => {
+            const rect = cta.getBoundingClientRect();
+            const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+            const clamped = Math.max(0, Math.min(1, progress));
+            cta.style.setProperty('--cta-parallax', `${(clamped - 0.5) * 120}px`);
+            ctaTicking = false;
+          });
+        };
+        window.addEventListener('scroll', onCtaScroll, { passive: true });
+        onCtaScroll();
+      }
+    })();
+    </script>
+    <style>
+      .skip { position: absolute; left: -999px; }
+      .skip:focus { left: var(--gutter); top: var(--s2); z-index: 30; background: var(--navy); color: #fff; padding: var(--s2) var(--s3); font-size: var(--text-sm); }
+    </style>
+  </body>
+</html>

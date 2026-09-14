@@ -1,0 +1,364 @@
+/* GANA R&D — 모션 시스템
+ * 레퍼런스: samsungcnt.com
+ *
+ * 중요: 모든 "숨김 초기 상태"는 html.js 가 있을 때만 적용된다.
+ *   - <html>에 class 없음 (JS 미실행) → 콘텐츠 100% 즉시 표시, 모션만 없음
+ *   - <html class="js"> (인라인 스크립트가 head에서 즉시 부여) → 리빌 모션 활성
+ * 이렇게 해야 외부 스크립트 로드 실패·캐시·경로 문제가 나도 콘텐츠가 절대 사라지지 않는다.
+ */
+
+:root {
+  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --dur-reveal: 900ms;
+  --dur-slow: 1200ms;
+}
+
+/* ─────────────────────────────────────────────
+   1. 스크롤 리빌 — [data-reveal]
+   ───────────────────────────────────────────── */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(48px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out-expo),
+    transform var(--dur-reveal) var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+html.js [data-reveal='left']  { transform: translateX(-60px); }
+html.js [data-reveal='right'] { transform: translateX(60px); }
+html.js [data-reveal='scale'] { transform: scale(0.94); }
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* stagger 컨테이너 — 자식들이 120ms 간격으로 순차 등장 */
+html.js [data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out-expo),
+    transform var(--dur-reveal) var(--ease-out-expo);
+  will-change: opacity, transform;
+}
+html.js [data-reveal-stagger].is-in > *:nth-child(1) { transition-delay: 0ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(2) { transition-delay: 120ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(3) { transition-delay: 240ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(4) { transition-delay: 360ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(5) { transition-delay: 480ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(6) { transition-delay: 600ms; }
+html.js [data-reveal-stagger].is-in > *:nth-child(n+7) { transition-delay: 720ms; }
+html.js [data-reveal-stagger].is-in > * {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─────────────────────────────────────────────
+   2. 히어로 — Ken Burns 줌 + 오버레이 순차 등장
+   ───────────────────────────────────────────── */
+@keyframes kenburns {
+  0%   { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+html.js .hero-media img {
+  animation: kenburns 2.4s var(--ease-out-expo) both;
+  will-change: transform;
+}
+/* 서브 페이지 비주얼 밴드 — 은은한 줌아웃 */
+html.js .page-visual img {
+  animation: kenburns 2s var(--ease-out-expo) both;
+  will-change: transform;
+}
+
+/* 히어로 텍스트 라인 마스크 리빌
+ * 마스크(overflow:hidden)는 패딩 박스에서 잘리는데 line-height가 1.04로 타이트해
+ * g·y·p 디센더가 라인 박스 밖으로 나가 잘린다. 아래쪽에만 여유를 주고 같은 크기의
+ * 음수 마진으로 상쇄한다. 위쪽에는 넣지 않는다 — 인접 형제의 음수 마진끼리
+ * 상쇄(margin collapsing)되면서 줄 간격이 벌어지고 제목이 밀려 올라간다.
+ * 초기 숨김값(130%)은 늘어난 마스크 높이(1.22em)보다 커야 글자가 미리 비치지 않는다. */
+.hero-line {
+  overflow: hidden;
+  display: block;
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
+}
+html.js .hero-line > span {
+  display: inline-block;
+  transform: translateY(130%);
+  transition: transform var(--dur-slow) var(--ease-out-expo);
+  will-change: transform;
+}
+html.js .is-loaded .hero-line > span { transform: translateY(0); }
+html.js .is-loaded .hero-line:nth-child(1) > span { transition-delay: 150ms; }
+html.js .is-loaded .hero-line:nth-child(2) > span { transition-delay: 300ms; }
+html.js .is-loaded .hero-line:nth-child(3) > span { transition-delay: 450ms; }
+
+/* 히어로 부가 요소 페이드 */
+html.js .hero-fade {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 900ms var(--ease-out-expo),
+    transform 900ms var(--ease-out-expo);
+}
+html.js .is-loaded .hero-fade { opacity: 1; transform: none; }
+html.js .is-loaded .hero-fade.d1 { transition-delay: 550ms; }
+html.js .is-loaded .hero-fade.d2 { transition-delay: 700ms; }
+html.js .is-loaded .hero-fade.d3 { transition-delay: 850ms; }
+
+/* ─────────────────────────────────────────────
+   3. 스크롤 다운 인디케이터 (samsungcnt scrolldown 키프레임)
+   ───────────────────────────────────────────── */
+.scroll-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 72px;
+  overflow: hidden;
+  background: rgba(29, 33, 38, 0.15);
+}
+.scroll-indicator::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 50%;
+  background: var(--accent);
+  animation: scrolldown 1.8s var(--ease-out-quart) infinite;
+}
+@keyframes scrolldown {
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(200%); }
+  100% { transform: translateY(200%); }
+}
+.scroll-indicator .label {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   4. 섹션 배경 대형 타이포 마르퀴 (title-bg-scroll)
+   ───────────────────────────────────────────── */
+.marquee-band {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  padding-block: var(--s5);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: clamp(72px, 12vw, 180px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px #d0d5dc; /* --line(#e2e5e9)보다 두 단계 진하게 — 굵기는 그대로 */
+  animation: marquee-x var(--marquee-dur, 40s) linear infinite;
+  will-change: transform;
+}
+.marquee-text.solid { color: var(--paper-2); -webkit-text-stroke: 0; }
+@keyframes marquee-x {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─────────────────────────────────────────────
+   5. 숫자 카운트업 — .stat .n 에 data-count
+   ───────────────────────────────────────────── */
+.stat .n { font-variant-numeric: tabular-nums; }
+/* stats 리빌 중 레이아웃 흔들림 방지 */
+.stats[data-reveal] > .stat { min-height: 120px; }
+
+/* ─────────────────────────────────────────────
+   6. 카드 / 이미지 호버 인터랙션
+   ───────────────────────────────────────────── */
+.card {
+  position: relative;
+  transition:
+    transform 500ms var(--ease-out-expo),
+    box-shadow 500ms var(--ease-out-expo),
+    border-color 300ms var(--ease-out-expo);
+}
+.card:hover {
+  transform: translateY(-6px);
+  border-top-color: var(--accent);
+}
+.card .link { position: relative; }
+.card .link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 450ms var(--ease-out-expo);
+}
+.card:hover .link::after { transform: scaleX(1); transform-origin: left; }
+.card .link { text-decoration: none !important; }
+
+/* 이미지 줌 호버 — split visual, band, photo-grid 공통 */
+.zoom-hover { overflow: hidden; }
+.zoom-hover img {
+  transition: transform 1.2s var(--ease-out-expo);
+  will-change: transform;
+}
+.zoom-hover:hover img { transform: scale(1.05); }
+
+/* ─────────────────────────────────────────────
+   7. 버튼 스윕 효과
+   ───────────────────────────────────────────── */
+.btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 350ms var(--ease-out-expo), border-color 350ms var(--ease-out-expo);
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent-2);
+  transform: translateX(-101%);
+  transition: transform 450ms var(--ease-out-expo);
+}
+.btn:hover::before { transform: translateX(0); }
+.btn.ghost::before { background: var(--paper-2); }
+.btn.on-dark::before { background: #e9ebee; }
+
+/* ─────────────────────────────────────────────
+   8. 헤더 — 히어로 위 투명 오버레이, 스크롤 시 블러
+   ───────────────────────────────────────────── */
+.hdr {
+  transition:
+    background 400ms var(--ease-out-expo),
+    box-shadow 400ms var(--ease-out-expo);
+}
+.hdr .row { transition: min-height 400ms var(--ease-out-expo); }
+/* 히어로가 있는 페이지: 헤더를 투명 오버레이로 */
+body.has-hero .hdr {
+  position: fixed;
+  left: 0; right: 0;
+  background: transparent;
+}
+body.has-hero .hdr .wordmark .g { color: #fff; }
+body.has-hero .hdr nav a { color: rgba(255, 255, 255, 0.88); }
+body.has-hero .hdr nav a::after { background: #fff; }
+body.has-hero .hdr.is-scrolled {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  box-shadow: 0 1px 0 var(--line);
+}
+body.has-hero .hdr.is-scrolled .wordmark .g { color: #3a3a3a; }
+body.has-hero .hdr.is-scrolled nav a { color: var(--ink); }
+body.has-hero .hdr.is-scrolled nav a::after { background: var(--accent); }
+.hdr.is-scrolled {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  box-shadow: 0 1px 0 var(--line);
+}
+.hdr.is-scrolled .row { min-height: 64px; }
+
+/* 네비 링크 언더라인 슬라이드 */
+nav a {
+  position: relative;
+  border-bottom: none !important;
+}
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 400ms var(--ease-out-expo);
+}
+nav a:hover::after,
+nav a[aria-current='page']::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ─────────────────────────────────────────────
+   9. 테이블 행 호버
+   ───────────────────────────────────────────── */
+.table tbody tr { transition: background 250ms var(--ease-out-expo); }
+.table tbody tr:hover { background: var(--paper-2); }
+
+/* ─────────────────────────────────────────────
+   10. CTA 밴드 — 미세 패럴랙스 글로우
+   ───────────────────────────────────────────── */
+.cta { position: relative; overflow: hidden; }
+.cta::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -10%;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 65%);
+  transform: translateY(var(--cta-parallax, 0px));
+  transition: transform 100ms linear;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────
+   접근성 — 모션 감소 설정 시 전부 비활성화
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal],
+  html.js [data-reveal-stagger] > *,
+  html.js .hero-line > span,
+  html.js .hero-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-media img,
+  .scroll-indicator::after,
+  .marquee-text {
+    animation: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   인쇄 — 리빌·마스크 강제 표시, 장식 요소 숨김
+   (실사 담당자는 Ctrl+P 로 PDF를 만든다. 스크롤 안 한 부분이 백지가 되면 안 된다)
+   ───────────────────────────────────────────── */
+@media print {
+  html.js [data-reveal],
+  html.js [data-reveal-stagger] > *,
+  html.js .hero-line > span,
+  html.js .hero-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-media img { animation: none !important; transform: none !important; }
+  .marquee-band, .scroll-indicator { display: none !important; }
+}

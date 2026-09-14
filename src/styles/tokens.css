@@ -1,0 +1,59 @@
+/* GANA R&D — 디자인 토큰
+ * 레퍼런스: Lonza (흰 바탕 · 액센트 하나 · 산세리프 · 화면폭 사진 밴드 · 여백).
+ * 액센트는 파랑(Lonza). 로고만 세리프 차콜/빨강. 장식 모션 0, 텍스처 0, 뱃지 0.
+ */
+:root {
+  /* 뉴트럴 */
+  --paper: #ffffff;
+  --paper-2: #f4f5f7;
+  --band: #e6e9ee;
+  --ink: #1d2126;
+  --ink-2: #4b5159;
+  --ink-3: #6b7380;
+  --line: #e2e5e9;
+  --heading: #1b3fbf;
+
+  /* 액센트 — 파랑 하나. 로고 빨강은 워드마크 전용 */
+  --accent: #1b3fbf;
+  --accent-2: #1533a0;
+  --navy: #0b1f3a;
+  --logo-red: #c8202a;
+  --on-dark: #ffffff;
+
+  /* 기능 색 — 텍스트 색으로만 씀 */
+  --ok: #1f6b45;
+  --warn: #8a5a00;
+
+  /* 타이포 */
+  --font: 'Manrope', 'Noto Sans KR', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-logo: 'Times New Roman', Times, 'Nimbus Roman', serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3rem;
+  /* 프리미엄 디스플레이 스케일 */
+  --text-display: clamp(2.75rem, 6.4vw, 5.5rem);
+  --text-h1: clamp(2.25rem, 4.6vw, 4rem);
+  --text-h2: clamp(1.75rem, 3vw, 2.5rem);
+
+  --leading-tight: 1.15;
+  --leading-body: 1.6;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
+
+  --content-max: 1440px;
+  --gutter: 40px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 180ms;
+}
+@media (max-width: 768px) {
+  :root { --gutter: 20px; --text-4xl: 2.25rem; --text-3xl: 2rem; }
+}

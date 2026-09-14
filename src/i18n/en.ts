@@ -1,0 +1,167 @@
+// Dr. Park Group — 영어(기본) UI 문자열. 모든 번역의 소스.
+// 카피 규칙: 확인된 사실만 · 층별 시제 · 세 층을 하나의 주어로 잇지 않는다 · 자격은 회사 이름 아래 · 그룹은 "함께 쓰는 이름"이지 기업집단이 아니다.
+export const en = {
+  nav: {
+    founder: 'The founder',
+    makes: 'What we make',
+    companies: 'Companies',
+    site: 'One site',
+    contact: 'Contact',
+    menu: 'Menu',
+  },
+  common: {
+    founder: 'Dr. Yongho Park',
+    scroll: 'Scroll',
+    visit: 'Visit {name}',
+    contactCo: 'Contact {name}',
+    tel: 'Tel',
+    email: 'Email',
+  },
+  meta: {
+    title: 'Dr. Park Group — Three companies, one site, one founder',
+    description:
+      'Dr. Park Group is the name under which three companies founded by Dr. Yongho Park present themselves together: GANA R&D (medical devices), GANA Cosmetic (cosmeceuticals) and Dr. Park CDMO (viral vector manufacturing), all working from one site in Seongnam, Korea.',
+  },
+  hero: {
+    eyebrow: 'Dr. Park Group — Seongnam, Korea',
+    title1: 'Three companies,',
+    title2: 'one site, one founder.',
+    sub: 'Licensed medical devices, professional cosmeceuticals and viral vector manufacturing. Three companies founded by Dr. Yongho Park, working from one site in Seongnam.',
+  },
+  founder: {
+    eyebrow: 'The founder',
+    title: 'Built in sequence, on one site.',
+    p1: 'Dr. Yongho Park founded GANA R&D in 2014 to manufacture dermal fillers under a Korean medical device licence. GANA Cosmetic followed in 2017 for professional skincare, and Dr. Park CDMO in 2019 to bring viral vector manufacturing onto the same site.',
+    p2: 'He remains the principal decision-maker in each company. Partners and buyers deal with him directly, and decisions are taken without a committee.',
+    photoNote: 'Founder portrait — Dr. Yongho Park at the Seongnam site, natural light, facing or three-quarter view (shot list 6-1)',
+    timelineTitle: 'Timeline',
+    timeline: [
+      { y: '2014', t: 'GANA R&D Co., Ltd. incorporated. MFDS medical device manufacturing licence No. 4490.' },
+      { y: '2017', t: 'GANA Cosmetic Co., Ltd. incorporated.' },
+      { y: '2019', t: 'Dr. Park CDMO incorporated.' },
+      { y: '2025', t: 'Phase 1 viral vector facility completed in August. Thermo Fisher Scientific selected to equip it.' },
+      { y: '2026', t: 'cGMP certification targeted for the viral vector facility.' },
+    ],
+  },
+  makes: {
+    eyebrow: 'What we make',
+    title: 'Skin, tissue, cell and gene. Each stated on its own.',
+    lead: 'The three companies work at three depths of the body. The status of each depth is given separately: two are made and registered, the third is built and awaiting certification.',
+    layers: [
+      {
+        name: 'Skin',
+        what: 'Dermal fillers in hyaluronic acid, PLLA, PCL and calcium, plus PN / PDRN, and professional cosmeceuticals.',
+        tense: 'Made and registered.',
+      },
+      {
+        name: 'Tissue',
+        what: 'Hydrogel and foam wound dressings for hospitals and long-term care.',
+        tense: 'Made and registered, including domestic-sale approval in Korea.',
+      },
+      {
+        name: 'Cell and gene',
+        what: 'AAV and other viral vectors, plasmid and recombinant protein for gene therapy developers.',
+        tense: 'Facility completed in 2025. cGMP certification targeted for 2026.',
+      },
+    ],
+    madeBy: 'Made by',
+    note: 'We do not claim one technology platform across all three depths. We state that the same founder, on the same site, manufactures at each of them.',
+  },
+  record: {
+    eyebrow: 'On the record',
+    title: 'The numbers behind the name',
+    stats: [
+      'Operating companies',
+      'Manufacturing site in Seongnam, Korea',
+      'Active device registrations held by GANA R&D',
+      'MFDS manufacturing licence held since',
+    ],
+  },
+  companies: {
+    eyebrow: 'The companies',
+    title: 'Three companies, each under its own name.',
+    lead: "Licences and registrations belong to the company that holds them. They are listed under that name here, and in full on each company's own site.",
+    servesLabel: 'Serves',
+    statusLabel: 'Status',
+    credentialsLabel: 'On the record',
+    items: {
+      ganarnd: {
+        field: 'Medical devices',
+        tagline: 'Fillers and wound dressings, made and registered.',
+        makes: 'Dermal fillers across four chemistries, and hydrogel and foam wound dressings, formulated, filled and registered under its own name, with contract manufacture for partner brands.',
+        serves: 'Clinics, hospitals, medical distributors and brand partners.',
+        status: 'Licensed manufacturer. Products made and registered.',
+        credentials: [
+          'MFDS manufacturing licence No. 4490, held since 2014',
+          'GMP conformity KCL-ABBA-19926, valid to 3 March 2027',
+          'EUDAMED manufacturer SRN KR-MF-000037221',
+          'MHRA manufacturer registration MAN_ID 32678',
+          '33 active product registrations across South Korea, Russia, Brazil and the United Kingdom',
+        ],
+        contactLabel: 'Device and distribution enquiries',
+      },
+      ganacosmetic: {
+        field: 'Cosmeceuticals',
+        tagline: 'Cosmeceuticals for clinics and professional distributors.',
+        makes: 'Cosmeceutical product development, OEM / ODM manufacture and private label for professional skincare.',
+        serves: 'Clinics, aesthetic distributors and ODM partners, in four languages.',
+        status: 'Operating brand and B2B supplier.',
+        credentials: ['Product notifications and quality documentation are presented on its own site'],
+        contactLabel: 'Cosmetic product and ODM enquiries',
+      },
+      drparkcdmo: {
+        field: 'Viral vector manufacturing',
+        tagline: 'Viral vectors, plasmid and protein. cGMP targeted for 2026.',
+        makes: 'Viral vectors (AAV, adenovirus, lentivirus), GMP plasmid, recombinant protein and peptide, from process development through engineering batches.',
+        serves: 'Gene therapy developers and biotech partners.',
+        status: 'Phase 1 viral vector facility completed August 2025. Process development and engineering batches available now. cGMP certification targeted for 2026; clinical supply can be contracted once certified.',
+        credentials: [
+          'Founded solely by Dr. Park, without external investment',
+          'Facility and equipment specifications are published on its own site',
+        ],
+        contactLabel: 'Vector, plasmid and protein manufacturing enquiries',
+      },
+    },
+  },
+  site: {
+    eyebrow: 'One site',
+    title: 'The same address on every registration',
+    addressK: 'Address',
+    addressV: '555 Dunchon-daero, Jungwon-gu, Seongnam-si, Gyeonggi-do 13215, Republic of Korea (Seonil Technopia)',
+    founderK: 'Founder',
+    founderV: 'Dr. Yongho Park, founder of GANA R&D, GANA Cosmetic and Dr. Park CDMO',
+    licenceK: 'Device manufacturing licence',
+    licenceV: 'GANA R&D, MFDS No. 4490, held since 2014',
+    facilityK: 'Viral vector facility',
+    facilityV: 'Dr. Park CDMO, Phase 1 facility completed August 2025, cGMP certification targeted for 2026',
+  },
+  contact: {
+    eyebrow: 'Contact',
+    title: 'Write to the company, not the group.',
+    lead: 'Enquiries are answered by the company that makes the product. Pick the line that matches yours.',
+    thCompany: 'Company',
+    thFor: 'For',
+    thChannel: 'Channel',
+  },
+  cta: {
+    title: 'Need a registration number?',
+    body: 'GANA R&D publishes every device registration with a public lookup path.',
+    btn: 'Registrations & Market Access',
+  },
+  footer: {
+    note: 'Dr. Park Group is the name under which three companies founded by Dr. Yongho Park present themselves together. Each company holds its own licences and registrations and is responsible for its own products.',
+    companies: 'Companies',
+    site: 'Site',
+    addr1: '555 Dunchon-daero, Jungwon-gu,',
+    addr2: 'Seongnam-si, Gyeonggi-do 13215, Republic of Korea',
+    audience: 'For partners, regulators and professional buyers.',
+  },
+  notFound: {
+    title: 'Page not found.',
+    lead: "The page you were looking for doesn't exist or has moved.",
+    home: 'Dr. Park Group home',
+  },
+};
+
+export type UIStrings = typeof en;
+export type CompanyStrings = UIStrings['companies']['items']['ganarnd'];
