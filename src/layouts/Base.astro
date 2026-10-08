@@ -46,7 +46,7 @@ const orgSchema = JSON.stringify({
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={group.name} />
     <meta property="og:locale" content={ogLocale[lang] ?? 'en_US'} />
-    <script type="application/ld+json" set:html={orgSchema} />
+    <script is:inline type="application/ld+json" set:html={orgSchema} />
     {languages.map((l) => (
       <link rel="alternate" hreflang={l.code} href={`${siteBase}${localizePath(currentPath, l.code)}`} />
     ))}
@@ -56,7 +56,7 @@ const orgSchema = JSON.stringify({
     <link href={fontsHref} rel="stylesheet" />
   </head>
   <body class={hasHero ? 'has-hero' : undefined}>
-    <a href="#main" class="skip">Skip to content</a>
+    <a href="#main" class="skip">{t.common.skip}</a>
     <Header />
     <main id="main"><slot /></main>
     <Footer />
@@ -79,14 +79,15 @@ const orgSchema = JSON.stringify({
         onScroll();
       }
 
-      if (reduced) {
-        document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => el.classList.add('is-in'));
+      const revealTargets = document.querySelectorAll('[data-reveal], [data-reveal-stagger]');
+      if (reduced || !('IntersectionObserver' in window)) {
+        revealTargets.forEach((el) => el.classList.add('is-in'));
         return;
       }
       const revealIO = new IntersectionObserver((entries) => {
         for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-in'); revealIO.unobserve(entry.target); }
       }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-      document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => revealIO.observe(el));
+      revealTargets.forEach((el) => revealIO.observe(el));
 
       const easeOutExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
       const animateCount = (el) => {
@@ -105,23 +106,6 @@ const orgSchema = JSON.stringify({
         if (el.firstChild && el.firstChild.nodeType === Node.TEXT_NODE) el.firstChild.nodeValue = '0';
         countIO.observe(el);
       });
-
-      const cta = document.querySelector('.cta');
-      if (cta) {
-        let ctaTicking = false;
-        const onCtaScroll = () => {
-          if (ctaTicking) return; ctaTicking = true;
-          requestAnimationFrame(() => {
-            const rect = cta.getBoundingClientRect();
-            const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
-            const clamped = Math.max(0, Math.min(1, progress));
-            cta.style.setProperty('--cta-parallax', `${(clamped - 0.5) * 120}px`);
-            ctaTicking = false;
-          });
-        };
-        window.addEventListener('scroll', onCtaScroll, { passive: true });
-        onCtaScroll();
-      }
     })();
     </script>
     <style>
