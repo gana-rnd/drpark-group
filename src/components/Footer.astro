@@ -1,7 +1,7 @@
 ---
-// 다크 푸터 — 그룹은 "함께 쓰는 이름"이라는 정의 + 세 회사 링크 + 부지 주소. 그룹 전화·메일은 없다(문의는 회사로).
+// 네이비 푸터(Figma v2) — 워드마크 + 한 줄, 회사·부지·대상 세 열, 아래에 그룹 정의 문구와 ©. 그룹 전화·메일은 없다(문의는 회사로).
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { group, companies } from '../data/group';
+import { group, companies, registrationsUrl } from '../data/group';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -9,38 +9,57 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="ftr">
-  <div class="container grid">
-    <div>
-      <p class="wordmark on-dark"><span class="g">Dr. Park</span> <span class="n">Group</span></p>
+  <div class="inner">
+    <div class="top">
+      <div class="brandcol">
+        <p class="brand"><span class="mark" aria-hidden="true"></span><span class="name">Dr. Park Group</span></p>
+        <p class="tag">{t.footer.tagline}</p>
+      </div>
+      <div class="cols">
+        <div>
+          <p class="h">{t.footer.companies}</p>
+          <ul>
+            {companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a></li>)}
+            <li><a href={registrationsUrl} rel="noopener">{t.cta.btn}</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="h">{t.footer.site}</p>
+          <address>{t.footer.addr1}<br />{t.footer.addr2}<br />{group.site.building}</address>
+        </div>
+        <div>
+          <p class="h">{t.footer.forLabel}</p>
+          <p class="aud">{t.footer.audience}</p>
+        </div>
+      </div>
+    </div>
+    <div class="base">
       <p class="note">{t.footer.note}</p>
+      <p class="copy">&copy; {year} {group.name}</p>
     </div>
-    <div>
-      <p class="h">{t.footer.companies}</p>
-      <ul>{companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a></li>)}</ul>
-    </div>
-    <div>
-      <p class="h">{t.footer.site}</p>
-      <address>
-        {t.footer.addr1}<br />
-        {t.footer.addr2}
-      </address>
-    </div>
-  </div>
-  <div class="container base">
-    <p>&copy; {year} {group.name}</p>
-    <p>{t.footer.audience}</p>
   </div>
 </footer>
 
 <style>
-  .ftr { background: var(--navy); color: #c9d3e2; margin-top: var(--s10); padding-block: var(--s8) var(--s6); }
-  .grid { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: var(--s8); }
-  .note { font-size: var(--text-sm); max-width: 52ch; margin-top: var(--s3); }
-  .h { font-size: var(--text-sm); font-weight: 600; color: #ffffff; margin-bottom: var(--s4); }
-  ul { list-style: none; display: flex; flex-direction: column; gap: var(--s2); }
-  a { font-size: var(--text-sm); transition: color var(--dur) var(--ease); }
-  a:hover { color: #fff; }
-  address { font-style: normal; font-size: var(--text-sm); }
-  .base { display: flex; justify-content: space-between; gap: var(--s4); margin-top: var(--s8); padding-top: var(--s5); border-top: 1px solid rgba(255,255,255,.12); font-size: var(--text-xs); color: #8ea0bd; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; gap: var(--s6); } .base { flex-direction: column; } }
+  .ftr { background: var(--navy); color: var(--on-dark); padding: clamp(56px, 6vw, 80px) var(--gutter) var(--s7); }
+  .inner { max-width: 1200px; margin-inline: auto; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s8); align-items: start; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 20px; height: 20px; background: var(--on-dark); flex: none; }
+  .brand .name { font-size: var(--text-sm); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  .tag { margin-top: var(--s4); font-size: var(--text-xs); opacity: 0.7; }
+  .cols { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s8); }
+  .h { font-size: var(--label); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; opacity: 0.55; margin-bottom: var(--s3); }
+  ul { list-style: none; display: grid; gap: 6px; }
+  a, address, .aud { font-size: var(--text-xs); opacity: 0.9; font-style: normal; line-height: 1.6; }
+  a { transition: opacity var(--dur) var(--ease); }
+  a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+  .aud { max-width: 24ch; }
+  .base { display: flex; justify-content: space-between; gap: var(--s6); align-items: flex-start; margin-top: var(--s8); padding-top: var(--s5); border-top: 1px solid rgba(247, 249, 248, 0.25); }
+  .note { font-size: var(--label); line-height: 1.6; opacity: 0.65; max-width: 76ch; }
+  .copy { font-size: var(--label); opacity: 0.5; white-space: nowrap; }
+  @media (max-width: 900px) {
+    .top, .cols { grid-template-columns: 1fr; gap: var(--s6); }
+    .base { flex-direction: column; }
+  }
 </style>

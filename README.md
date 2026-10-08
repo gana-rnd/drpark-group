@@ -23,6 +23,15 @@ vercel --prod --yes   # 배포 (vercel.json 의 framework: astro 필수)
 - "외부 투자 없이 단독 창업"은 Dr. Park CDMO에 한정(자사 진술). 다른 회사로 확대 금지.
 - 개인 휴대폰·개인 이메일 미게재. 그룹 대표 채널은 없고, 문의는 회사별 법인 채널로 라우팅.
 
+## 2026-10-08 v2 — Figma 레이아웃 스터디 이식
+
+- 기준 디자인: Figma https://www.figma.com/design/vpuLdiUddsPM1J5u8NXC3s — "v2 — Dr. Park Group Home" 데스크톱(1440)·모바일(390) 프레임. v1(RRE Ventures 레이아웃 그대로)은 비교용으로 같은 파일 왼쪽에 남아 있다.
+- 구조: 흰 헤더 바 → 히어로(공장 통배경, 헤드라인 좌하·소개 우상) → [흰 패널·우] 창업자 + 숫자 2(33·2014) + 연혁 → [다크 패널·좌] 세 층 → [흰 패널·우] 회사 카드 3 → [전폭·가운데] 시설 영상 → [다크 패널·좌] 문의 라우팅 + 등재 CTA → 네이비 푸터. 구 "05 한 부지" 섹션은 푸터 주소로 흡수, 인용 밴드는 없음(실제 발언 전까지 금지).
+- 통배경: `public/images/bg-factory.webp`(1440×4420)·`bg-factory-m.webp`(390×3000). Dr. Park 공장 촬영 스틸 4장(복도·바이오리액터 열·정제 스키드·DynaSpin)을 세로로 이어 붙여 다크 그레이딩한 합성본. 원본 스틸은 `D:\ganarnd-rebranding\images\stills-video\보정본`. `global.css`의 `body.has-hero`가 `cover / center top`으로 깐다.
+- 팔레트: `tokens.css`를 GANA R&D 현행 토큰(ink #16222c · brass #9a8050 · band #e7ebe8 · navy #0e2139 · on-dark #f7f9f8)으로 교체. 구 파랑 액센트 폐기. 제목은 Manrope 300(Light), 라벨은 브라스 대문자 자간, 버튼은 점선 브래킷(`.bracket`).
+- 패널 시스템(`HomePage.astro`의 `.panel`): 1100px 이상에서 폭 `100% - --strip(120px)`, `.right`는 왼쪽 띠, `.left`는 오른쪽 띠. 그 아래 폭에서는 전폭.
+- 시설 영상 썸네일 `public/images/film-thumb.webp`는 보정 없이 영상 원색 그대로(사용자 지시). 영상 공개 URL은 `group.ts`의 `filmUrl`(빈 문자열이면 "영상 보기"가 링크 없는 라벨로 렌더).
+- 워드마크는 로고 확정 전 임시(잉크 사각형 + 대문자 텍스트). 창업자 포트레이트 슬롯은 이 레이아웃에서 빠져 있음 — 촬영 후 창업자 패널에 추가.
 ## 공개 전 확인·교체
 
 - 연혁의 법인 설립 연도(2014 / 2017 / 2019)는 기업 DB 기준 — 등기부와 대조 후 확정.

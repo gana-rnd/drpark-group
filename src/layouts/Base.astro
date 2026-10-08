@@ -15,7 +15,8 @@ const siteBase = Astro.site?.toString().replace(/\/$/, '') ?? '';
 const canonicalUrl = `${siteBase}${localizePath(currentPath, lang)}`;
 const ogLocale: Record<string, string> = { en: 'en_US', ko: 'ko_KR' };
 // 한국어 페이지에만 Noto Sans KR 추가. 라틴 글리프는 Manrope.
-const fontsHref = `https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500${lang === 'ko' ? '&family=Noto+Sans+KR:wght@400;500;600;700' : ''}&display=swap`;
+// Manrope 300(Light)은 v2 헤드라인용.
+const fontsHref = `https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500${lang === 'ko' ? '&family=Noto+Sans+KR:wght@300;400;500;600;700' : ''}&display=swap`;
 // 조직 스키마 — 지분 관계를 함의하는 subOrganization은 쓰지 않는다(6사 통합자료 §3-6). 세 회사는 sameAs 링크로만.
 const orgSchema = JSON.stringify({
   '@context': 'https://schema.org',

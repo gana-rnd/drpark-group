@@ -1,5 +1,6 @@
 ---
-// 헤더: 워드마크 좌 · 앵커 내비 5 우 · 언어 전환기 · 모바일 햄버거 — GANA R&D Header와 같은 구조
+// 헤더 — 흰 바(히어로 위에 겹치지 않고 그 위에 얹힘, Figma v2). 워드마크 좌 · 앵커 내비 4 우 · 언어 전환기 · 모바일 햄버거.
+// 로고 확정 전까지 워드마크는 잉크 사각형 + 대문자 자간 텍스트(임시).
 import { getLangFromUrl, useTranslations, localizePath, stripLangFromPath, languages } from '../i18n/utils';
 
 const lang = getLangFromUrl(Astro.url);
@@ -11,14 +12,13 @@ const nav = [
   { href: `${home}#founder`, label: t.nav.founder },
   { href: `${home}#makes`, label: t.nav.makes },
   { href: `${home}#companies`, label: t.nav.companies },
-  { href: `${home}#site`, label: t.nav.site },
   { href: `${home}#contact`, label: t.nav.contact },
 ];
 ---
 
 <header class="hdr">
-  <div class="container row">
-    <a href={home} class="wordmark" aria-label="Dr. Park Group — home"><span class="g">Dr. Park</span> <span class="n">Group</span></a>
+  <div class="row">
+    <a href={home} class="brand" aria-label="Dr. Park Group — home"><span class="mark" aria-hidden="true"></span><span class="name">Dr. Park Group</span></a>
     <div class="right">
       <nav id="site-nav" aria-label="Primary">
         <ul>
@@ -26,7 +26,7 @@ const nav = [
         </ul>
       </nav>
       <div class="lang-switch">
-        <button class="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language">
+        <button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Language">
           {languages.find((l) => l.code === lang)?.label}
           <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
@@ -46,22 +46,21 @@ const nav = [
 </header>
 
 <style>
-  .hdr { background: var(--paper); position: sticky; top: 0; z-index: 20; }
-  .row { display: flex; align-items: center; justify-content: space-between; min-height: 84px; }
+  .hdr { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  .row { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding-inline: var(--gutter); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
+  .brand .mark { width: 20px; height: 20px; background: var(--ink); flex: none; }
+  .brand .name { font-size: var(--text-sm); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
   .right { display: flex; align-items: center; gap: var(--s6); }
   nav ul { display: flex; gap: var(--s6); list-style: none; }
-  nav a { font-size: var(--text-sm); font-weight: 500; color: var(--ink); padding-block: var(--s2); border-bottom: 2px solid transparent; transition: border-color var(--dur) var(--ease); }
+  nav a { font-size: var(--text-xs); font-weight: 500; color: var(--ink); padding-block: var(--s2); border-bottom: 1px solid transparent; transition: border-color var(--dur) var(--ease); }
   nav a:hover { border-bottom-color: var(--accent); }
-
-  /* 워드마크 둘째 단어 — 히어로 위에서는 연한 파랑, 스크롤 후 네이비 */
-  :global(body.has-hero .hdr .wordmark .n) { color: #c9d3e2; transition: color 300ms var(--ease-out-expo); }
-  :global(body.has-hero .hdr.is-scrolled .wordmark .n) { color: var(--navy); }
 
   /* 언어 전환기 */
   .lang-switch { position: relative; z-index: 30; }
   .lang-btn {
     display: inline-flex; align-items: center; gap: 6px;
-    font: inherit; font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.06em;
+    font: inherit; font-size: var(--label); font-weight: 600; letter-spacing: 0.06em;
     color: var(--ink-2); background: none; border: 1px solid var(--line);
     border-radius: 999px; padding: 7px 14px; cursor: pointer;
     transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
@@ -71,7 +70,7 @@ const nav = [
     position: absolute; right: 0; top: calc(100% + 8px);
     list-style: none; background: #fff; border: 1px solid var(--line);
     border-radius: 6px; padding: 6px; min-width: 150px;
-    box-shadow: 0 8px 24px rgba(11, 31, 58, 0.10);
+    box-shadow: 0 8px 24px rgba(14, 33, 57, 0.10);
     display: none; opacity: 0; transform: translateY(-6px);
     transition: opacity 200ms var(--ease-out-expo), transform 200ms var(--ease-out-expo);
   }
@@ -79,31 +78,23 @@ const nav = [
   .lang-menu a { display: block; padding: 8px 12px; font-size: var(--text-sm); color: var(--ink); border-radius: 4px; border: none; transition: background var(--dur) var(--ease); }
   .lang-menu a:hover { background: var(--paper-2); }
   .lang-menu a.active { color: var(--accent); font-weight: 600; }
-  body.has-hero .hdr:not(.is-scrolled) .lang-btn { color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.3); }
-  body.has-hero .hdr:not(.is-scrolled) .lang-btn:hover { border-color: #fff; color: #fff; }
 
   /* 햄버거 — 데스크톱에선 숨김 */
   .menu-btn { display: none; background: none; border: 0; cursor: pointer; padding: 10px; margin-right: -10px; }
   .menu-btn .bars { display: block; width: 22px; }
-  .menu-btn .bars i { display: block; height: 2px; width: 100%; background: var(--ink); transition: transform 300ms var(--ease-out-expo), opacity 200ms var(--ease-out-expo), background 300ms var(--ease-out-expo); }
+  .menu-btn .bars i { display: block; height: 2px; width: 100%; background: var(--ink); transition: transform 300ms var(--ease-out-expo), opacity 200ms var(--ease-out-expo); }
   .menu-btn .bars i + i { margin-top: 5px; }
   .hdr.nav-open .menu-btn .bars i:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .hdr.nav-open .menu-btn .bars i:nth-child(2) { opacity: 0; }
   .hdr.nav-open .menu-btn .bars i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-  body.has-hero .hdr:not(.is-scrolled):not(.nav-open) .menu-btn .bars i { background: #fff; }
 
   @media (max-width: 1024px) {
-    .row { min-height: 68px; }
+    .row { min-height: 56px; }
     .menu-btn { display: inline-flex; }
-    nav { position: absolute; left: 0; right: 0; top: 100%; display: none; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 16px 32px rgba(11, 31, 58, 0.10); }
+    nav { position: absolute; left: 0; right: 0; top: 100%; display: none; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 16px 32px rgba(14, 33, 57, 0.10); }
     .hdr.nav-open nav { display: block; }
     nav ul { flex-direction: column; gap: 0; padding: var(--s3) var(--gutter) var(--s5); }
-    nav a { display: block; padding: var(--s3) 0; font-size: var(--text-base); color: var(--ink) !important; }
-    nav a::after { content: none !important; }
-    .hdr.nav-open { background: #fff; box-shadow: 0 1px 0 var(--line); }
-    body.has-hero .hdr.nav-open .wordmark .g { color: #3a3a3a; }
-    :global(body.has-hero .hdr.nav-open .wordmark .n) { color: var(--navy); }
-    body.has-hero .hdr.nav-open .lang-btn { color: var(--ink-2); border-color: var(--line); }
+    nav a { display: block; padding: var(--s3) 0; font-size: var(--text-base); }
   }
 </style>
 

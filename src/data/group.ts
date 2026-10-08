@@ -54,6 +54,9 @@ export const byId = Object.fromEntries(companies.map((c) => [c.id, c])) as Recor
 /** GANA R&D 등재 자료실 — CTA 링크 */
 export const registrationsUrl = 'https://ganarnd-rebranding.vercel.app/market-access/';
 
+/** 시설 홍보영상 공개 URL — 미정이면 빈 문자열(홈의 "영상 보기"가 링크 없는 라벨로 렌더됨). 완성본: OneDrive 바탕 화면 "닥터박 완성본.mp4" */
+export const filmUrl = '';
+
 /** 세 층 — 어느 회사가 만드는가. 문구·시제는 i18n makes.layers[i]. */
 export const layers: { no: string; by: CompanyId[] }[] = [
   { no: '01', by: ['ganarnd', 'ganacosmetic'] },

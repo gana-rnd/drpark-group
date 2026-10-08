@@ -5,6 +5,10 @@ html { -webkit-text-size-adjust: 100%; }
 /* 리빌 초기 transform(translateX)·마르퀴가 문서를 옆으로 넓히지 않게 */
 html, body { overflow-x: clip; }
 @supports not (overflow: clip) { html, body { overflow-x: hidden; } }
+/* 통배경 — 공장 스틸 4장(복도·바이오리액터·정제 스키드·DynaSpin)을 세로로 이어 붙여 다크 그레이딩한 합성 이미지.
+ * 홈(body.has-hero)에서만. 패널(.panel)이 그 위에 떠 있고, 한쪽 띠(--strip)로 배경이 계속 보인다. 이미지 밖 영역은 --bg-deep. */
+body.has-hero { background: var(--bg-deep) url('/images/bg-factory.webp') center top / cover no-repeat; }
+@media (max-width: 640px) { body.has-hero { background-image: url('/images/bg-factory-m.webp'); } }
 body {
   font-family: var(--font);
   font-size: var(--text-base);
