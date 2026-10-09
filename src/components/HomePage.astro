@@ -196,6 +196,13 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
     .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
     .hero-intro { justify-self: start; padding-top: var(--s5); }
   }
+  @media (max-width: 480px) {
+    .hero { padding-top: var(--s6); padding-bottom: var(--s7); }
+    .hero-grid { gap: var(--s6); }
+    .hero-intro { gap: var(--s4); padding-top: var(--s4); }
+    .hero-intro .bracket { order: 1; }
+    .hero-intro .dim { order: 2; }
+  }
 
   /* ── 패널 시스템 — 통배경 위에 떠 있는 상자. 데스크톱에서 한쪽에 --strip 폭의 배경 띠를 남긴다 ── */
   .panel { position: relative; isolation: isolate; padding: clamp(56px, 7vw, 104px) clamp(24px, 8.3vw, 120px); }
@@ -250,6 +257,7 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   .creds li { border-top: 1px solid var(--line-strong); padding: var(--s3) 0; font-size: var(--text-xs); line-height: 1.5; }
   .card .bracket { margin-top: auto; align-self: flex-start; }
   @media (max-width: 900px) { .cards { grid-template-columns: 1fr; margin-top: var(--s6); } }
+  @media (max-width: 375px) { .card { padding: var(--s5); } }
 
   /* ── 시설 영상 — 가운데 정렬 세트 ── */
   .film { padding: clamp(64px, 8vw, 120px) var(--gutter); color: var(--on-dark); }
