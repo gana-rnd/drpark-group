@@ -13,6 +13,7 @@ export const ko: UIStrings = {
   common: {
     founder: '박용호 박사',
     scroll: '스크롤',
+    skip: '본문으로 건너뛰기',
     visit: '{name} 사이트로',
     contactCo: '{name}에 문의',
     tel: '전화',

@@ -94,9 +94,12 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
     <p class="lead">{t.companies.lead}</p>
   </div>
   <div class="cards">
-    {companies.map((c) => (
+    {companies.map((c, index) => (
       <article class="card">
-        <p class="eyebrow">{cs(c.id).field}</p>
+        <div class="card-top">
+          <p class="eyebrow">{cs(c.id).field}</p>
+          <span class="card-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+        </div>
         <h3>{c.name}</h3>
         <p class="tag">{cs(c.id).tagline}</p>
         <p class="status">{cs(c.id).status}</p>
@@ -121,7 +124,7 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
     <figure class="thumb">
       <div class="frame">
         <img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} loading="lazy" />
-        <span class="play" aria-hidden="true"></span>
+        {filmUrl && <span class="play" aria-hidden="true"></span>}
       </div>
       <figcaption>{t.film.caption}</figcaption>
     </figure>
@@ -164,14 +167,15 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   .eyebrow.on-dark { color: rgba(247, 249, 248, 0.8); }
   .bracket {
     display: inline-flex; align-items: center; padding: 12px 18px;
-    border: 1px dashed rgba(22, 34, 44, 0.7);
+    border: 1px solid rgba(22, 34, 44, 0.7); box-shadow: inset 3px 0 0 var(--accent);
     font-size: var(--label); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink);
-    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
   }
-  .bracket:hover { background: rgba(22, 34, 44, 0.06); border-color: var(--ink); }
+  .bracket:hover { background: rgba(22, 34, 44, 0.06); border-color: var(--ink); transform: translateY(-1px); }
   .bracket.on-dark, .glass .bracket { border-color: rgba(247, 249, 248, 0.7); color: var(--on-dark); }
   .bracket.on-dark:hover, .glass .bracket:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--on-dark); }
   .bracket.pending { cursor: default; opacity: 0.6; }
+  .bracket.pending:hover { background: transparent; border-color: rgba(247, 249, 248, 0.7); transform: none; }
   h2 { font-weight: 300; font-size: var(--text-h2); line-height: 1.12; letter-spacing: -0.03em; max-width: 16ch; color: inherit; }
   h3 { color: inherit; }
   .lead { font-size: var(--text-sm); line-height: 1.68; max-width: 56ch; }
@@ -183,24 +187,34 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   .hero-grid { position: relative; width: 100%; max-width: var(--content-max); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s8); align-items: end; min-height: inherit; }
   .hero-title { font-weight: 300; font-size: var(--text-display); line-height: 1.08; letter-spacing: -0.03em; color: var(--on-dark); max-width: 12em; }
   :global(html[lang="ko"]) .hero-title { letter-spacing: -0.01em; max-width: 11em; }
-  .hero-intro { align-self: start; justify-self: end; max-width: 440px; display: grid; gap: var(--s5); padding-top: clamp(8px, 4vw, 48px); }
+  .hero-intro { align-self: start; justify-self: end; max-width: 440px; display: grid; gap: var(--s5); padding-top: clamp(20px, 4vw, 48px); border-top: 1px solid rgba(247, 249, 248, 0.32); }
   .hero-intro p { font-size: var(--text-sm); line-height: 1.65; }
   .hero-intro .dim { opacity: 0.85; }
   .hero-intro .bracket { justify-self: start; }
   @media (max-width: 900px) {
     .hero { min-height: 0; padding-top: var(--s7); padding-bottom: var(--s8); }
     .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
-    .hero-intro { order: -1; justify-self: start; padding-top: 0; }
+    .hero-intro { justify-self: start; padding-top: var(--s5); }
+  }
+  @media (max-width: 480px) {
+    .hero { padding-top: var(--s6); padding-bottom: var(--s7); }
+    .hero-grid { gap: var(--s6); }
+    .hero-intro { gap: var(--s4); padding-top: var(--s4); }
+    .hero-intro .bracket { order: 1; }
+    .hero-intro .dim { order: 2; }
   }
 
   /* ── 패널 시스템 — 통배경 위에 떠 있는 상자. 데스크톱에서 한쪽에 --strip 폭의 배경 띠를 남긴다 ── */
-  .panel { padding: clamp(56px, 7vw, 104px) clamp(24px, 8.3vw, 120px); }
+  .panel { position: relative; isolation: isolate; padding: clamp(56px, 7vw, 104px) clamp(24px, 8.3vw, 120px); }
   .panel.paper { background: var(--paper); color: var(--ink); }
   .panel.glass { background: var(--glass); color: var(--on-dark); }
   @media (min-width: 1100px) {
     .panel { width: calc(100% - var(--strip)); }
     .panel.right { margin-left: auto; }
     .panel.left { margin-right: auto; }
+    .panel::before { content: ''; position: absolute; top: 0; width: 2px; height: clamp(68px, 8vw, 112px); background: var(--accent); }
+    .panel.right::before { left: 0; }
+    .panel.left::before { right: 0; }
   }
   .grid.two { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 5.5vw, 80px); align-items: start; }
   .copy > * + * { margin-top: var(--s5); }
@@ -233,7 +247,9 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   /* ── 회사 카드 ── */
   .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); margin-top: var(--s8); }
   .card { background: var(--band); border: 1px solid var(--line); padding: var(--s6); display: flex; flex-direction: column; gap: var(--s4); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
   .card .eyebrow { margin-bottom: 0; }
+  .card-index { padding-left: var(--s3); border-left: 1px solid var(--line-strong); color: var(--accent-2); font-family: var(--font-mono); font-size: var(--label); font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
   .card h3 { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
   .card .tag { font-size: var(--text-sm); line-height: 1.55; }
   .card .status { font-size: var(--text-xs); color: var(--ink-2); line-height: 1.55; white-space: normal; }
@@ -241,6 +257,7 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   .creds li { border-top: 1px solid var(--line-strong); padding: var(--s3) 0; font-size: var(--text-xs); line-height: 1.5; }
   .card .bracket { margin-top: auto; align-self: flex-start; }
   @media (max-width: 900px) { .cards { grid-template-columns: 1fr; margin-top: var(--s6); } }
+  @media (max-width: 375px) { .card { padding: var(--s5); } }
 
   /* ── 시설 영상 — 가운데 정렬 세트 ── */
   .film { padding: clamp(64px, 8vw, 120px) var(--gutter); color: var(--on-dark); }
