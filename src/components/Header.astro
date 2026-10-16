@@ -14,9 +14,9 @@ const nav = [
 ---
 <header class="hdr">
   <div class="row">
-    <a href={home} class="brand" aria-label={`${t.common.home} — Dr. Park Group`}><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a>
+    <a href={home} class="brand" aria-label={`${t.common.home} — Dr. Park Group`}><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a>
     <div class="right">
-      <nav id="site-nav" aria-label={t.nav.primary}><ul>{nav.map((item, i) => <li><a href={`${home}#${item.id}`} data-section={item.id}><span class="nav-number" aria-hidden="true">0{i + 1}</span>{item.label}</a></li>)}</ul></nav>
+      <nav id="site-nav" aria-label={t.nav.primary}><ul>{nav.map((item) => <li><a href={`${home}#${item.id}`} data-section={item.id}>{item.label}</a></li>)}</ul></nav>
       <div class="lang-switch">
         <button class="lang-btn" type="button" aria-controls="language-options" aria-expanded="false" aria-label={t.common.language}><Icon name="globe" size={16} />{languages.find((l) => l.code === lang)?.label}<svg width="8" height="5" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" /></svg></button>
         <ul class="lang-menu" id="language-options">{languages.map((l) => <li><a href={localizePath(currentPath, l.code)} class={l.code === lang ? 'active' : undefined} hreflang={l.code} lang={l.code} aria-current={l.code === lang ? 'true' : undefined}>{l.name}<span>{l.label}</span></a></li>)}</ul>
@@ -24,7 +24,6 @@ const nav = [
       <button class="menu-btn" type="button" aria-controls="site-nav" aria-expanded="false" aria-label={t.nav.menu}><span class="bars" aria-hidden="true"><i></i><i></i></span></button>
     </div>
   </div>
-  <div class="reading-progress" aria-hidden="true"></div>
 </header>
 <style>
   .hdr { background: #fbfcfaf5; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); }
@@ -35,7 +34,7 @@ const nav = [
   .brand-group { display: block; margin-top: 6px; font: 8px var(--font-mono); letter-spacing: .36em; }
   .right { display: flex; align-items: center; gap: 32px; }
   nav ul { display: flex; gap: 34px; list-style: none; }
-  nav a { position: relative; font-size: 11px; color: var(--ink-2); padding-block: 14px; display: inline-flex; gap: 8px; transition: color 200ms; }
+  nav a { position: relative; font-size: 13px; color: var(--ink-2); padding-block: 14px; display: inline-flex; gap: 8px; transition: color 200ms; }
   nav a::after { content: ''; position: absolute; bottom: 4px; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 200ms; }
   nav a:hover, nav a[aria-current="location"] { color: var(--accent-2); }
   nav a:hover::after, nav a[aria-current="location"]::after { transform: scaleX(1); }
@@ -45,7 +44,7 @@ const nav = [
   .lang-btn:hover { color: var(--accent-2); }
   .lang-menu { position: absolute; right: 0; top: calc(100% + 12px); min-width: 180px; list-style: none; background: var(--paper); border: 1px solid var(--line); padding: 8px; box-shadow: 0 16px 36px #16222c18; display: none; }
   .lang-switch.open .lang-menu { display: block; }
-  .lang-menu a { display: flex; justify-content: space-between; gap: 30px; padding: 14px 12px; font-size: 12px; }
+  .lang-menu a { color: var(--ink); display: flex; justify-content: space-between; gap: 30px; padding: 14px 12px; font-size: 12px; }
   .lang-menu a span { color: var(--ink-3); font: 10px var(--font-mono); }
   .lang-menu a:hover { background: var(--paper-2); }
   .lang-menu a.active { color: var(--accent-2); }
@@ -55,7 +54,6 @@ const nav = [
   .bars i + i { margin-top: 6px; }
   .nav-open .bars i:first-child { transform: translateY(3.5px) rotate(45deg); }
   .nav-open .bars i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
-  .reading-progress { height: 1px; position: absolute; bottom: -1px; left: 0; width: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
   @media (max-width: 1024px) {
     .row, .hdr.is-scrolled .row { min-height: 76px; }
     .menu-btn { display: flex; }
@@ -70,6 +68,16 @@ const nav = [
     .lang-btn { padding-left: 0; border-left: 0; }
   }
   @media (max-width: 480px) { .row, .hdr.is-scrolled .row { min-height: 72px; gap: 12px; } .brand { gap: 10px; } .name { font-size: 22px; } .brand-group { font-size: 7px; } .right { gap: 10px; } .lang-btn { gap: 5px; } .lang-btn > :global(svg:first-child) { display: none; } }
+  /* LPAS를 참고한 사진 위의 조용한 내비게이션. 홈에서만 절대 배치. */
+  :global(body.has-hero) .hdr { position: absolute; left: 0; width: 100%; background: var(--paper); }
+  :global(body.has-hero) .hdr.is-scrolled { position: fixed; background: var(--paper); }
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) { background: transparent; border-bottom-color: #ffffff30; backdrop-filter: none; }
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) .brand,
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) nav a,
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) .lang-btn { color: #fff; }
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) .lang-btn { border-left-color: #ffffff30; }
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) .menu-btn { border-color: #ffffff50; }
+  :global(body.has-hero) .hdr:not(.is-scrolled):not(.nav-open) .bars i { background: #fff; }
 </style>
 <script>
   const hdr = document.querySelector('.hdr');
@@ -95,11 +103,8 @@ const nav = [
     if (navOpen) menuBtn?.focus(); else if (langOpen) langBtn?.focus();
   });
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-section]');
-  const progress = document.querySelector<HTMLElement>('.reading-progress');
   let queued = false;
   const updateScroll = () => {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    if (progress) progress.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
     let active = '';
     links.forEach((link) => { const id = link.dataset.section; if (id && (document.getElementById(id)?.getBoundingClientRect().top ?? Infinity) <= 180) active = id; });
     links.forEach((link) => { if (link.dataset.section === active) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current'); });

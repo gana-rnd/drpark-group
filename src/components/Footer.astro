@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
 ---
 <footer class="ftr">
   <div class="inner">
-    <div class="footer-heading"><a class="brand" href={localizePath('/', lang)}><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a><a class="back-top" href="#main"><span>{t.common.backTop}</span><Icon name="down" size={18} /></a></div>
+    <div class="footer-heading"><a class="brand" href={localizePath('/', lang)}><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a><a class="back-top" href="#main"><span>{t.common.backTop}</span><Icon name="down" size={18} /></a></div>
     <div class="top">
       <div class="brandcol"><p class="tag">{t.footer.tagline}</p><p class="aud">{t.footer.audience}</p></div>
       <div class="cols">
@@ -26,7 +26,6 @@ const year = new Date().getFullYear();
   .brand { display: inline-flex; align-items: center; gap: 14px; }
   .name { font-size: 32px; font-weight: 500; letter-spacing: -.055em; line-height: 1; }
   .brand-group { display: block; margin-top: 8px; font: 8px var(--font-mono); letter-spacing: .4em; color: var(--accent-light); }
-  .brand :global(.brand-mark) { width: 36px; height: 36px; background: transparent; border: 1px solid #ffffff35; }
   .back-top { display: inline-flex; gap: 18px; align-items: center; font-size: 10px; color: #ffffffb3; }
   .back-top :global(svg) { transform: rotate(180deg); }
   .back-top:hover { color: var(--accent-light); }

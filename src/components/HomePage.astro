@@ -10,35 +10,33 @@ const t = useTranslations(lang);
 const items = t.companies.items as Record<string, CompanyStrings>;
 const cs = (id: string) => items[id];
 const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, label: t.record.stats[i] }));
-const layerIcons = ['skin', 'tissue', 'gene'] as const;
 ---
 <div class="gateway">
   <section class="hero" id="top" aria-labelledby="hero-title">
     <div class="hero-shade" aria-hidden="true"></div>
     <div class="hero-grid">
-      <div class="hero-location hero-fade d1"><span class="location-dot" aria-hidden="true"></span>{t.hero.eyebrow}<span class="location-line" aria-hidden="true"></span></div>
+      <div class="hero-location hero-fade d1">{t.hero.eyebrow}</div>
       <div class="hero-copy">
         <h1 class="hero-title" id="hero-title">
           <span class="hero-line"><span>{t.hero.title1}</span></span>
           <span class="hero-line"><span>{t.hero.title2}</span></span>
         </h1>
-        <a href="#founder" class="scroll-link hero-fade d2"><span class="circle-arrow"><Icon name="down" size={18} /></span>{t.common.scroll}</a>
+        <a href="#founder" class="scroll-link hero-fade d2"><Icon name="down" size={20} />{t.common.scroll}</a>
       </div>
       <div class="hero-intro hero-fade d2">
-        <span class="intro-index" aria-hidden="true">[ 01 — 03 ]</span>
         <p>{t.hero.sub}</p>
         <a class="bracket on-dark" href="#companies"><span>{t.nav.companies}</span><Icon name="arrow" /></a>
       </div>
       <div class="hero-directory hero-fade d2">
-        {companies.map((c, i) => (
-          <a href={`#${c.id}`}><span class="directory-no">0{i + 1}</span><span>{c.name}<small>{cs(c.id).field}</small></span><Icon name="diagonal" size={18} /></a>
+        {companies.map((c) => (
+          <a href={`#${c.id}`}><span>{c.name}<small>{cs(c.id).field}</small></span><Icon name="diagonal" size={18} /></a>
         ))}
       </div>
     </div>
   </section>
 
   <section class="panel paper right founder" id="founder" aria-labelledby="founder-title">
-    <div class="section-label"><p class="eyebrow"><span>01</span>{t.founder.eyebrow}</p><span class="section-rule"></span><span class="section-meta">2014 — 2026</span></div>
+    <div class="section-label"><p class="eyebrow">{t.founder.eyebrow}</p><span class="section-rule"></span><span class="section-meta">2014 — 2026</span></div>
     <div class="grid two" data-reveal>
       <div class="copy">
         <h2 id="founder-title">{t.founder.title}</h2>
@@ -66,12 +64,11 @@ const layerIcons = ['skin', 'tissue', 'gene'] as const;
   </section>
 
   <section class="panel glass left makes" id="makes" aria-labelledby="makes-title">
-    <div class="section-label"><p class="eyebrow"><span>02</span>{t.makes.eyebrow}</p><span class="section-rule"></span></div>
+    <div class="section-label"><p class="eyebrow">{t.makes.eyebrow}</p><span class="section-rule"></span></div>
     <div class="grid two head" data-reveal><h2 id="makes-title">{t.makes.title}</h2><p class="lead">{t.makes.lead}</p></div>
     <div class="layers">
       {layers.map((l, i) => (
         <article class="layer" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
-          <div class="layer-top"><span class="no">{l.no}</span><div class="layer-symbol"><Icon name={layerIcons[i]} size={42} /></div></div>
           <h3>{t.makes.layers[i].name}</h3>
           <p>{t.makes.layers[i].what}</p>
           <div class="layer-bottom"><p class:list={['tense', { 'is-target': i === 2 }]}><span class="status-dot" aria-hidden="true"></span>{t.makes.layers[i].tense}</p><p class="by">{t.makes.madeBy}<br />{l.by.map((id) => byId[id].name).join(' · ')}</p></div>
@@ -82,20 +79,20 @@ const layerIcons = ['skin', 'tissue', 'gene'] as const;
   </section>
 
   <section class="panel paper right companies" id="companies" aria-labelledby="companies-title">
-    <div class="section-label"><p class="eyebrow"><span>03</span>{t.companies.eyebrow}</p><span class="section-rule"></span><span class="section-meta">01 / 02 / 03</span></div>
+    <div class="section-label"><p class="eyebrow">{t.companies.eyebrow}</p><span class="section-rule"></span></div>
     <div class="grid two head" data-reveal><h2 id="companies-title">{t.companies.title}</h2><p class="lead">{t.companies.lead}</p></div>
     <div class="cards">
       {companies.map((c, i) => (
         <article class={`card card-${c.id}`} id={c.id} data-reveal style={`--reveal-delay: ${i * 80}ms`}>
-          <div class="card-top"><p class="eyebrow">{cs(c.id).field}</p><span class="card-index">0{i + 1}</span></div>
+          <div class="card-top"><p class="eyebrow">{cs(c.id).field}</p></div>
           <h3>{c.name}</h3>
           <p class="tag">{cs(c.id).tagline}</p>
           <div class="card-status"><span class="small-label">{t.companies.statusLabel}</span><p class="status">{cs(c.id).status}</p></div>
           <details class="records">
-            <summary><span>{t.companies.credentialsLabel}</span><span class="records-action"><span class="records-count">{cs(c.id).credentials.length.toString().padStart(2, '0')}</span><Icon name="plus" size={16} /></span></summary>
+            <summary><span>{t.companies.credentialsLabel}</span><span class="records-action"><Icon name="plus" size={16} /></span></summary>
             <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
           </details>
-          <a class="company-link" href={c.url} rel="noopener"><span>{tpl(t.common.visit, { name: c.name })}</span><span class="link-icon"><Icon name="diagonal" size={18} /></span></a>
+          <a class="company-link" href={c.url} rel="noopener"><span>{tpl(t.common.visit, { name: c.name })}</span><Icon name="diagonal" size={20} /></a>
         </article>
       ))}
     </div>
@@ -104,13 +101,13 @@ const layerIcons = ['skin', 'tissue', 'gene'] as const;
   <section class="film" id="film" aria-labelledby="film-title">
     <div class="film-set" data-reveal>
       <div class="copy">
-        <p class="eyebrow on-dark"><span class="film-number">04</span>{t.film.eyebrow}</p>
+        <p class="eyebrow on-dark">{t.film.eyebrow}</p>
         <h2 id="film-title">{t.film.title}</h2><p>{t.film.body}</p>
         {filmUrl ? <a class="bracket on-dark" href={filmUrl} rel="noopener"><span>{t.film.watch}</span><Icon name="diagonal" /></a> : <p class="film-pending"><span class="status-dot" aria-hidden="true"></span>{t.film.pending}</p>}
       </div>
       <figure class="thumb">
         <button class="frame" type="button" data-open-facility aria-label={t.film.enlarge}><img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} loading="lazy" /><span class="photo-enlarge"><Icon name="plus" size={18} /><span>{t.film.enlarge}</span></span></button>
-        <figcaption><span>{t.film.caption}</span><span class="film-frame-label" aria-hidden="true">DR. PARK CDMO</span></figcaption>
+        <figcaption><span>{t.film.caption}</span></figcaption>
       </figure>
     </div>
   </section>
@@ -120,12 +117,12 @@ const layerIcons = ['skin', 'tissue', 'gene'] as const;
   </dialog>
 
   <section class="panel glass left contact" id="contact" aria-labelledby="contact-title">
-    <div class="section-label"><p class="eyebrow"><span>05</span>{t.contact.eyebrow}</p><span class="section-rule"></span></div>
+    <div class="section-label"><p class="eyebrow">{t.contact.eyebrow}</p><span class="section-rule"></span></div>
     <div class="grid two head" data-reveal><h2 id="contact-title">{t.contact.title}</h2><p class="lead">{t.contact.lead}</p></div>
     <div class="table-wrap plain" data-reveal>
       <table class="route"><thead><tr><th scope="col">{t.contact.thCompany}</th><th scope="col">{t.contact.thFor}</th><th scope="col">{t.contact.thChannel}</th></tr></thead><tbody>
-        {companies.map((c, i) => (
-          <tr><th scope="row" class="co"><span class="route-number" aria-hidden="true">0{i + 1}</span>{c.name}</th><td class="for">{cs(c.id).contactLabel}</td><td class="ch">
+        {companies.map((c) => (
+          <tr><th scope="row" class="co">{c.name}</th><td class="for">{cs(c.id).contactLabel}</td><td class="ch">
             {c.tel && <a class="mono" href={`tel:${c.tel.replace(/[^+\d]/g, '')}`}>{c.tel}</a>}
             {c.email && <a class="mono" href={'mailto:' + c.email}>{c.email}</a>}
             <a class="go" href={c.contactUrl} rel="noopener"><span>{tpl(t.common.contactCo, { name: c.name })}</span><Icon name="diagonal" size={16} /></a>
