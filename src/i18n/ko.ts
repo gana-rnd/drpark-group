@@ -3,7 +3,6 @@ import type { UIStrings } from './en';
 
 export const ko: UIStrings = {
   nav: {
-    primary: '주 내비게이션',
     founder: '창업자',
     makes: '무엇을 만드는가',
     companies: '세 회사',
@@ -12,9 +11,6 @@ export const ko: UIStrings = {
     menu: '메뉴',
   },
   common: {
-    language: '언어 선택',
-    home: '홈',
-    backTop: '맨 위로',
     founder: '박용호 박사',
     scroll: '스크롤',
     skip: '본문으로 건너뛰기',
@@ -155,9 +151,6 @@ export const ko: UIStrings = {
     btn: '인허가·시장 진입',
   },
   film: {
-    pending: '시설 영상 · 공개 준비 중',
-    enlarge: '시설 사진 크게 보기',
-    close: '사진 닫기',
     eyebrow: '시설 영상',
     title: '성남 부지를 영상으로.',
     body: '2025년 8월 준공한 Phase 1 바이러스 벡터 시설. 현장에서 직접 촬영했으며 스톡 영상은 쓰지 않았습니다.',

@@ -229,12 +229,3 @@ html[lang="ko"] .hero-title { max-width: 18ch; }
 .cta h2 { color: #fff; }
 .cta p { color: rgba(255,255,255,.8); }
 .cta .row { display: flex; align-items: center; justify-content: space-between; gap: var(--s6); flex-wrap: wrap; }
-
-/* 세 개의 선으로 기존 사각형 마크를 정돈. 확정 로고를 대체하지 않는 임시 워드마크. */
-.brand-mark { width: 32px; height: 32px; background: var(--ink); display: flex; align-items: center; justify-content: center; gap: 3px; flex: none; }
-.brand-mark i { display: block; width: 2px; height: 13px; background: var(--accent-light); }
-.brand-mark i:nth-child(2) { height: 19px; }
-.brand-mark i:nth-child(3) { height: 9px; }
-[id] { scroll-margin-top: 100px; }
-button, summary { -webkit-tap-highlight-color: transparent; }
-@media (max-width: 480px) { .brand-mark { width: 28px; height: 28px; } }

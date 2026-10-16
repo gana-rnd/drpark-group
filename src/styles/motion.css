@@ -31,6 +31,10 @@ html.js .is-loaded .hero-fade { opacity: 1; transform: none; }
 html.js .is-loaded .hero-fade.d1 { transition-delay: 140ms; }
 html.js .is-loaded .hero-fade.d2 { transition-delay: 240ms; }
 
+/* 카드: 링크 여부를 보조하는 짧은 깊이 변화만 사용한다. */
+.card { transition: transform 240ms var(--ease), box-shadow 240ms var(--ease), border-color 240ms var(--ease); }
+.card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 12px 28px rgba(14, 33, 57, 0.10); }
+
 @media (prefers-reduced-motion: reduce) {
   html.js [data-reveal],
   html.js .hero-line > span,

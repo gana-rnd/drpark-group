@@ -1,9 +1,12 @@
 ---
+// 게이트웨이 홈 본문 — 2026-10-08 Figma v2를 그대로 이식.
+// 구조: [흰 헤더 바] → 히어로(공장 통배경 위, 헤드라인 좌하 · 소개 우상) → [흰 패널·우] 창업자 + 숫자 2 + 연혁
+//      → [다크 패널·좌] 세 층 → [흰 패널·우] 회사 카드 3 → [전폭·가운데] 시설 영상 → [다크 패널·좌] 문의 라우팅 + 등재 CTA → 네이비 푸터
+// 통배경은 global.css의 body.has-hero. 패널은 배경 위에 떠 있고 한쪽 띠(--strip)로 배경이 보인다.
+// 인용문 없음(창업자 "발언"은 실제 발언이 생길 때까지 금지). 숫자는 33·2014 둘만.
 import { companies, byId, layers, stats, registrationsUrl, filmUrl } from '../data/group';
 import { getLangFromUrl, useTranslations, tpl } from '../i18n/utils';
 import type { CompanyStrings } from '../i18n/en';
-import Icon from './Icon.astro';
-import '../styles/home.css';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -11,135 +14,284 @@ const items = t.companies.items as Record<string, CompanyStrings>;
 const cs = (id: string) => items[id];
 const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, label: t.record.stats[i] }));
 ---
-<div class="gateway">
-  <section class="hero" id="top" aria-labelledby="hero-title">
-    <div class="hero-shade" aria-hidden="true"></div>
-    <div class="hero-grid">
-      <div class="hero-location hero-fade d1">{t.hero.eyebrow}</div>
-      <div class="hero-copy">
-        <h1 class="hero-title" id="hero-title">
-          <span class="hero-line"><span>{t.hero.title1}</span></span>
-          <span class="hero-line"><span>{t.hero.title2}</span></span>
-        </h1>
-        <a href="#founder" class="scroll-link hero-fade d2"><Icon name="down" size={20} />{t.common.scroll}</a>
-      </div>
-      <div class="hero-intro hero-fade d2">
-        <p>{t.hero.sub}</p>
-        <a class="bracket on-dark" href="#companies"><span>{t.nav.companies}</span><Icon name="arrow" /></a>
-      </div>
-      <div class="hero-directory hero-fade d2">
-        {companies.map((c) => (
-          <a href={`#${c.id}`}><span>{c.name}<small>{cs(c.id).field}</small></span><Icon name="diagonal" size={18} /></a>
+
+<!-- 히어로 — 배경 없음(통배경이 비친다). 헤드라인 좌하, 소개 두 문단 + 브래킷 우상 -->
+<section class="hero" id="top">
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow on-dark hero-fade d1">{t.hero.eyebrow}</p>
+      <h1 class="hero-title">
+        <span class="hero-line"><span>{t.hero.title1}</span></span>
+        <span class="hero-line"><span>{t.hero.title2}</span></span>
+      </h1>
+    </div>
+    <div class="hero-intro hero-fade d2">
+      <p>{t.hero.sub}</p>
+      <p class="dim">{t.footer.note}</p>
+      <a class="bracket on-dark" href="#companies">{t.nav.companies}</a>
+    </div>
+  </div>
+</section>
+
+<!-- 창업자 — 흰 패널, 오른쪽 정렬. 좌 문단 / 우 숫자 2 + 연혁 -->
+<section class="panel paper right" id="founder" data-reveal>
+  <div class="grid two">
+    <div class="copy">
+      <p class="eyebrow">{t.founder.eyebrow}</p>
+      <h2>{t.founder.title}</h2>
+      <p>{t.founder.p1}</p>
+      <p>{t.founder.p2}</p>
+    </div>
+    <div class="facts">
+      <div class="stats2">
+        {keyStats.map((s) => (
+          <div class="stat">
+            {s.count ? <div class="n" data-count={s.n}>{s.n}</div> : <div class="n">{s.n}</div>}
+            <div class="l">{s.label}</div>
+          </div>
         ))}
       </div>
+      <ol class="timeline">
+        {t.founder.timeline.map((e) => (
+          <li><span class="y">{e.y}</span><span class="d">{e.t}</span></li>
+        ))}
+      </ol>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="panel paper right founder" id="founder" aria-labelledby="founder-title">
-    <div class="section-label"><p class="eyebrow">{t.founder.eyebrow}</p><span class="section-rule"></span><span class="section-meta">2014 — 2026</span></div>
-    <div class="grid two" data-reveal>
-      <div class="copy">
-        <h2 id="founder-title">{t.founder.title}</h2>
-        <p class="founder-name">{t.common.founder}<span class="founder-rule" aria-hidden="true"></span></p>
-        <p>{t.founder.p1}</p>
-        <p>{t.founder.p2}</p>
+<!-- 무엇을 만드는가 — 다크 패널, 왼쪽 정렬. 세 층, 층별 시제. 세 층을 하나의 주어로 잇지 않는다. -->
+<section class="panel glass left" id="makes" data-reveal>
+  <div class="grid two head">
+    <div>
+      <p class="eyebrow">{t.makes.eyebrow}</p>
+      <h2>{t.makes.title}</h2>
+    </div>
+    <p class="lead">{t.makes.lead}</p>
+  </div>
+  <div class="layers">
+    {layers.map((l, i) => (
+      <div class="layer">
+        <span class="no">{l.no}</span>
+        <h3>{t.makes.layers[i].name}</h3>
+        <p>{t.makes.layers[i].what}</p>
+        <p class="tense">{t.makes.layers[i].tense}</p>
+        <p class="by">{t.makes.madeBy} · {l.by.map((id) => byId[id].name).join(' · ')}</p>
       </div>
-      <div class="facts">
-        <div class="stats2">
-          {keyStats.map((s) => (
-            <div class="stat">
-              {s.count ? <div class="n" data-count={s.n}>{s.n}</div> : <div class="n">{s.n}</div>}
-              <div class="l">{s.label}</div>
-            </div>
-          ))}
+    ))}
+  </div>
+  <p class="note">{t.makes.note}</p>
+</section>
+
+<!-- 세 회사 — 흰 패널, 오른쪽 정렬. 카드 3, 자격은 각 회사 이름 아래 -->
+<section class="panel paper right" id="companies" data-reveal>
+  <div class="grid two head">
+    <div>
+      <p class="eyebrow">{t.companies.eyebrow}</p>
+      <h2>{t.companies.title}</h2>
+    </div>
+    <p class="lead">{t.companies.lead}</p>
+  </div>
+  <div class="cards">
+    {companies.map((c, index) => (
+      <article class="card">
+        <div class="card-top">
+          <p class="eyebrow">{cs(c.id).field}</p>
+          <span class="card-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         </div>
-        <div class="timeline-heading"><p class="eyebrow">{t.founder.timelineTitle}</p><Icon name="down" size={16} /></div>
-        <ol class="timeline">
-          {t.founder.timeline.map((e, i) => (
-            <li class={i === t.founder.timeline.length - 1 ? 'target-year' : undefined}><span class="y">{e.y}</span><span class="timeline-dot" aria-hidden="true"></span><span class="d">{e.t}</span></li>
-          ))}
-        </ol>
+        <h3>{c.name}</h3>
+        <p class="tag">{cs(c.id).tagline}</p>
+        <p class="status">{cs(c.id).status}</p>
+        <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
+        <a class="bracket" href={c.url} rel="noopener">{tpl(t.common.visit, { name: c.name })}</a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<!-- 시설 영상 — 전폭, 문구 + 썸네일 한 세트를 가운데. 썸네일은 보정 없이 영상 원색 그대로. -->
+<section class="film" id="film" data-reveal>
+  <div class="film-set">
+    <div class="copy">
+      <p class="eyebrow">{t.film.eyebrow}</p>
+      <h2>{t.film.title}</h2>
+      <p>{t.film.body}</p>
+      {filmUrl
+        ? <a class="bracket on-dark" href={filmUrl} rel="noopener">{t.film.watch}</a>
+        : <span class="bracket on-dark pending" title="Film URL pending">{t.film.watch}</span>}
+    </div>
+    <figure class="thumb">
+      <div class="frame">
+        <img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} loading="lazy" />
+        {filmUrl && <span class="play" aria-hidden="true"></span>}
       </div>
-    </div>
-  </section>
+      <figcaption>{t.film.caption}</figcaption>
+    </figure>
+  </div>
+</section>
 
-  <section class="panel glass left makes" id="makes" aria-labelledby="makes-title">
-    <div class="section-label"><p class="eyebrow">{t.makes.eyebrow}</p><span class="section-rule"></span></div>
-    <div class="grid two head" data-reveal><h2 id="makes-title">{t.makes.title}</h2><p class="lead">{t.makes.lead}</p></div>
-    <div class="layers">
-      {layers.map((l, i) => (
-        <article class="layer" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
-          <h3>{t.makes.layers[i].name}</h3>
-          <p>{t.makes.layers[i].what}</p>
-          <div class="layer-bottom"><p class:list={['tense', { 'is-target': i === 2 }]}><span class="status-dot" aria-hidden="true"></span>{t.makes.layers[i].tense}</p><p class="by">{t.makes.madeBy}<br />{l.by.map((id) => byId[id].name).join(' · ')}</p></div>
-        </article>
-      ))}
-    </div>
-    <p class="note"><span aria-hidden="true">*</span>{t.makes.note}</p>
-  </section>
-
-  <section class="panel paper right companies" id="companies" aria-labelledby="companies-title">
-    <div class="section-label"><p class="eyebrow">{t.companies.eyebrow}</p><span class="section-rule"></span></div>
-    <div class="grid two head" data-reveal><h2 id="companies-title">{t.companies.title}</h2><p class="lead">{t.companies.lead}</p></div>
-    <div class="cards">
-      {companies.map((c, i) => (
-        <article class={`card card-${c.id}`} id={c.id} data-reveal style={`--reveal-delay: ${i * 80}ms`}>
-          <div class="card-top"><p class="eyebrow">{cs(c.id).field}</p></div>
-          <h3>{c.name}</h3>
-          <p class="tag">{cs(c.id).tagline}</p>
-          <div class="card-status"><span class="small-label">{t.companies.statusLabel}</span><p class="status">{cs(c.id).status}</p></div>
-          <details class="records">
-            <summary><span>{t.companies.credentialsLabel}</span><span class="records-action"><Icon name="plus" size={16} /></span></summary>
-            <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
-          </details>
-          <a class="company-link" href={c.url} rel="noopener"><span>{tpl(t.common.visit, { name: c.name })}</span><Icon name="diagonal" size={20} /></a>
-        </article>
-      ))}
-    </div>
-  </section>
-
-  <section class="film" id="film" aria-labelledby="film-title">
-    <div class="film-set" data-reveal>
-      <div class="copy">
-        <p class="eyebrow on-dark">{t.film.eyebrow}</p>
-        <h2 id="film-title">{t.film.title}</h2><p>{t.film.body}</p>
-        {filmUrl ? <a class="bracket on-dark" href={filmUrl} rel="noopener"><span>{t.film.watch}</span><Icon name="diagonal" /></a> : <p class="film-pending"><span class="status-dot" aria-hidden="true"></span>{t.film.pending}</p>}
-      </div>
-      <figure class="thumb">
-        <button class="frame" type="button" data-open-facility aria-label={t.film.enlarge}><img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} loading="lazy" /><span class="photo-enlarge"><Icon name="plus" size={18} /><span>{t.film.enlarge}</span></span></button>
-        <figcaption><span>{t.film.caption}</span></figcaption>
-      </figure>
-    </div>
-  </section>
-  <dialog class="facility-dialog" aria-label={t.film.enlarge}>
-    <button class="dialog-close" type="button" aria-label={t.film.close}><Icon name="close" size={24} /></button>
-    <img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} /><p>{t.film.caption}</p>
-  </dialog>
-
-  <section class="panel glass left contact" id="contact" aria-labelledby="contact-title">
-    <div class="section-label"><p class="eyebrow">{t.contact.eyebrow}</p><span class="section-rule"></span></div>
-    <div class="grid two head" data-reveal><h2 id="contact-title">{t.contact.title}</h2><p class="lead">{t.contact.lead}</p></div>
-    <div class="table-wrap plain" data-reveal>
-      <table class="route"><thead><tr><th scope="col">{t.contact.thCompany}</th><th scope="col">{t.contact.thFor}</th><th scope="col">{t.contact.thChannel}</th></tr></thead><tbody>
+<!-- 문의 라우팅 — 다크 패널, 왼쪽 정렬. 그룹 채널 없음, 회사별 법인 채널 + 등재 자료실 CTA -->
+<section class="panel glass left" id="contact" data-reveal>
+  <p class="eyebrow">{t.contact.eyebrow}</p>
+  <h2>{t.contact.title}</h2>
+  <p class="lead">{t.contact.lead}</p>
+  <div class="table-wrap plain">
+    <table class="route">
+      <thead><tr><th>{t.contact.thCompany}</th><th>{t.contact.thFor}</th><th>{t.contact.thChannel}</th></tr></thead>
+      <tbody>
         {companies.map((c) => (
-          <tr><th scope="row" class="co">{c.name}</th><td class="for">{cs(c.id).contactLabel}</td><td class="ch">
-            {c.tel && <a class="mono" href={`tel:${c.tel.replace(/[^+\d]/g, '')}`}>{c.tel}</a>}
-            {c.email && <a class="mono" href={'mailto:' + c.email}>{c.email}</a>}
-            <a class="go" href={c.contactUrl} rel="noopener"><span>{tpl(t.common.contactCo, { name: c.name })}</span><Icon name="diagonal" size={16} /></a>
-          </td></tr>
+          <tr>
+            <td class="co">{c.name}</td>
+            <td class="for">{cs(c.id).contactLabel}</td>
+            <td class="ch">
+              {c.tel && <span class="mono">{c.tel}</span>}
+              {c.email && <a class="mono" href={'mailto:' + c.email}>{c.email}</a>}
+              <a class="go" href={c.contactUrl} rel="noopener">{tpl(t.common.contactCo, { name: c.name })} →</a>
+            </td>
+          </tr>
         ))}
-      </tbody></table>
-    </div>
-    <div class="cta-row"><div><p class="cta-title">{t.cta.title}</p><p>{t.cta.body}</p></div><a class="bracket on-dark" href={registrationsUrl} rel="noopener"><span>{t.cta.btn}</span><Icon name="arrow" /></a></div>
-  </section>
-</div>
+      </tbody>
+    </table>
+  </div>
+  <div class="cta-row">
+    <p><b>{t.cta.title}</b> {t.cta.body}</p>
+    <a class="bracket on-dark" href={registrationsUrl} rel="noopener">{t.cta.btn}</a>
+  </div>
+</section>
 
-<script>
-  const facilityDialog = document.querySelector<HTMLDialogElement>('.facility-dialog');
-  document.querySelector('[data-open-facility]')?.addEventListener('click', () => facilityDialog?.showModal());
-  facilityDialog?.querySelector('.dialog-close')?.addEventListener('click', () => facilityDialog.close());
-  facilityDialog?.addEventListener('click', (event) => {
-    const bounds = facilityDialog.getBoundingClientRect();
-    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) facilityDialog.close();
-  });
-</script>
+<style>
+  /* ── 공통: 아이브로우(브라스 대문자) · 브래킷 버튼(점선) · 제목 Light ── */
+  .eyebrow { display: block; font-size: var(--label); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: var(--s4); }
+  .eyebrow::before { content: none; }
+  .eyebrow.on-dark { color: rgba(247, 249, 248, 0.8); }
+  .bracket {
+    display: inline-flex; align-items: center; padding: 12px 18px;
+    border: 1px solid rgba(22, 34, 44, 0.7); box-shadow: inset 3px 0 0 var(--accent);
+    font-size: var(--label); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink);
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .bracket:hover { background: rgba(22, 34, 44, 0.06); border-color: var(--ink); transform: translateY(-1px); }
+  .bracket.on-dark, .glass .bracket { border-color: rgba(247, 249, 248, 0.7); color: var(--on-dark); }
+  .bracket.on-dark:hover, .glass .bracket:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--on-dark); }
+  .bracket.pending { cursor: default; opacity: 0.6; }
+  .bracket.pending:hover { background: transparent; border-color: rgba(247, 249, 248, 0.7); transform: none; }
+  h2 { font-weight: 300; font-size: var(--text-h2); line-height: 1.12; letter-spacing: -0.03em; max-width: 16ch; color: inherit; }
+  h3 { color: inherit; }
+  .lead { font-size: var(--text-sm); line-height: 1.68; max-width: 56ch; }
+  :global(html[lang="ko"]) h2 { letter-spacing: -0.01em; max-width: 20ch; }
+
+  /* ── 히어로 ── */
+  .hero { position: relative; min-height: min(88vh, 760px); display: grid; align-items: end; padding: clamp(40px, 6vw, 96px) var(--gutter); color: var(--on-dark); overflow: hidden; }
+  .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.25) 55%, rgba(0, 0, 0, 0.7) 100%); pointer-events: none; }
+  .hero-grid { position: relative; width: 100%; max-width: var(--content-max); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s8); align-items: end; min-height: inherit; }
+  .hero-title { font-weight: 300; font-size: var(--text-display); line-height: 1.08; letter-spacing: -0.03em; color: var(--on-dark); max-width: 12em; }
+  :global(html[lang="ko"]) .hero-title { letter-spacing: -0.01em; max-width: 11em; }
+  .hero-intro { align-self: start; justify-self: end; max-width: 440px; display: grid; gap: var(--s5); padding-top: clamp(20px, 4vw, 48px); border-top: 1px solid rgba(247, 249, 248, 0.32); }
+  .hero-intro p { font-size: var(--text-sm); line-height: 1.65; }
+  .hero-intro .dim { opacity: 0.85; }
+  .hero-intro .bracket { justify-self: start; }
+  @media (max-width: 900px) {
+    .hero { min-height: 0; padding-top: var(--s7); padding-bottom: var(--s8); }
+    .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
+    .hero-intro { justify-self: start; padding-top: var(--s5); }
+  }
+  @media (max-width: 480px) {
+    .hero { padding-top: var(--s6); padding-bottom: var(--s7); }
+    .hero-grid { gap: var(--s6); }
+    .hero-intro { gap: var(--s4); padding-top: var(--s4); }
+    .hero-intro .bracket { order: 1; }
+    .hero-intro .dim { order: 2; }
+  }
+
+  /* ── 패널 시스템 — 통배경 위에 떠 있는 상자. 데스크톱에서 한쪽에 --strip 폭의 배경 띠를 남긴다 ── */
+  .panel { position: relative; isolation: isolate; padding: clamp(56px, 7vw, 104px) clamp(24px, 8.3vw, 120px); }
+  .panel.paper { background: var(--paper); color: var(--ink); }
+  .panel.glass { background: var(--glass); color: var(--on-dark); }
+  @media (min-width: 1100px) {
+    .panel { width: calc(100% - var(--strip)); }
+    .panel.right { margin-left: auto; }
+    .panel.left { margin-right: auto; }
+    .panel::before { content: ''; position: absolute; top: 0; width: 2px; height: clamp(68px, 8vw, 112px); background: var(--accent); }
+    .panel.right::before { left: 0; }
+    .panel.left::before { right: 0; }
+  }
+  .grid.two { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 5.5vw, 80px); align-items: start; }
+  .copy > * + * { margin-top: var(--s5); }
+  .copy h2 { margin-bottom: var(--s2); }
+  .copy p:not(.eyebrow) { font-size: var(--text-sm); line-height: 1.68; max-width: 48ch; }
+  .glass .lead { color: inherit; opacity: 0.85; }
+  @media (max-width: 900px) { .grid.two { grid-template-columns: 1fr; gap: var(--s6); } }
+
+  /* ── 창업자: 숫자 2 + 연혁 ── */
+  .stats2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat { border-top: 1px solid var(--line-strong); padding: var(--s5) var(--s5) var(--s6) 0; }
+  .stat .n { color: var(--ink); font-size: clamp(2.5rem, 3.4vw, 3rem); font-weight: 300; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .l { margin-top: var(--s3); font-size: 0.625rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); line-height: 1.5; max-width: 26ch; }
+  .timeline { list-style: none; margin-top: var(--s7); border-bottom: 1px solid var(--line); }
+  .timeline li { display: grid; grid-template-columns: 56px 1fr; gap: var(--s5); padding: var(--s4) 0; border-top: 1px solid var(--line); font-size: var(--text-xs); line-height: 1.6; }
+  .timeline .y { color: var(--accent); font-weight: 600; }
+  @media (max-width: 480px) { .stats2 { grid-template-columns: 1fr; } .stat { padding-right: 0; } }
+
+  /* ── 세 층 ── */
+  .layers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s7); margin-top: var(--s8); }
+  .layer { border-top: 1px solid rgba(247, 249, 248, 0.35); padding-top: var(--s5); display: grid; gap: var(--s3); align-content: start; }
+  .layer .no { font-size: var(--label); letter-spacing: 0.08em; color: var(--accent); }
+  .layer h3 { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
+  .layer p { font-size: var(--text-xs); line-height: 1.62; opacity: 0.85; }
+  .layer .tense { font-size: 0.625rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); opacity: 1; }
+  .layer .by { font-size: var(--label); opacity: 0.6; }
+  .note { margin-top: var(--s8); font-size: var(--text-xs); line-height: 1.6; max-width: 76ch; opacity: 0.6; }
+  @media (max-width: 900px) { .layers { grid-template-columns: 1fr; gap: var(--s5); } .note { margin-top: var(--s6); } }
+
+  /* ── 회사 카드 ── */
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); margin-top: var(--s8); }
+  .card { background: var(--band); border: 1px solid var(--line); padding: var(--s6); display: flex; flex-direction: column; gap: var(--s4); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
+  .card .eyebrow { margin-bottom: 0; }
+  .card-index { padding-left: var(--s3); border-left: 1px solid var(--line-strong); color: var(--accent-2); font-family: var(--font-mono); font-size: var(--label); font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+  .card h3 { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
+  .card .tag { font-size: var(--text-sm); line-height: 1.55; }
+  .card .status { font-size: var(--text-xs); color: var(--ink-2); line-height: 1.55; white-space: normal; }
+  .creds { list-style: none; margin-top: var(--s2); border-bottom: 1px solid var(--line-strong); }
+  .creds li { border-top: 1px solid var(--line-strong); padding: var(--s3) 0; font-size: var(--text-xs); line-height: 1.5; }
+  .card .bracket { margin-top: auto; align-self: flex-start; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; margin-top: var(--s6); } }
+  @media (max-width: 375px) { .card { padding: var(--s5); } }
+
+  /* ── 시설 영상 — 가운데 정렬 세트 ── */
+  .film { padding: clamp(64px, 8vw, 120px) var(--gutter); color: var(--on-dark); }
+  .film-set { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 640px); gap: clamp(40px, 6vw, 96px); align-items: center; justify-content: center; }
+  .film .copy { display: grid; gap: var(--s5); }
+  .film .copy > * + * { margin-top: 0; }
+  .film h2 { color: var(--on-dark); }
+  .film .copy p:not(.eyebrow) { font-size: var(--text-sm); line-height: 1.68; opacity: 0.85; max-width: 40ch; }
+  .film .bracket { justify-self: start; }
+  .thumb { margin: 0; }
+  .thumb .frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--navy); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: rgba(247, 249, 248, 0.92); }
+  .play::after { content: ''; position: absolute; left: 26px; top: 20px; border-left: 16px solid var(--ink); border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+  .thumb figcaption { margin-top: var(--s3); font-size: var(--label); opacity: 0.7; }
+  @media (max-width: 900px) { .film-set { grid-template-columns: 1fr; gap: var(--s6); } }
+
+  /* ── 문의 라우팅 표 + CTA 행 ── */
+  .table-wrap.plain { background: none; }
+  .route { width: 100%; border-collapse: collapse; margin-top: var(--s7); font-size: var(--text-sm); }
+  .route th { text-align: left; font-size: 0.625rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; padding: 0 var(--s5) var(--s3) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.4); }
+  .route td { padding: var(--s4) var(--s5) var(--s4) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.25); vertical-align: top; line-height: 1.6; }
+  .route .co { font-weight: 600; white-space: nowrap; width: 20%; }
+  .route .for { opacity: 0.85; }
+  .route .ch { display: grid; gap: 4px; font-size: var(--text-xs); }
+  .route .go { opacity: 0.7; }
+  .route .go:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+  .cta-row { margin-top: var(--s7); display: flex; justify-content: space-between; align-items: center; gap: var(--s6); flex-wrap: wrap; }
+  .cta-row p { font-size: var(--text-xs); line-height: 1.6; opacity: 0.8; max-width: 62ch; }
+  .cta-row b { font-weight: 600; }
+  @media (max-width: 640px) {
+    .route thead { display: none; }
+    .route tr { display: block; padding: var(--s3) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.25); }
+    .route td { display: block; padding: 2px 0; border: 0; width: auto; }
+    .route .ch { margin-top: var(--s2); }
+  }
+</style>

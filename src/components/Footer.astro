@@ -1,50 +1,65 @@
 ---
-import { getLangFromUrl, useTranslations, localizePath } from '../i18n/utils';
+// 네이비 푸터(Figma v2) — 워드마크 + 한 줄, 회사·부지·대상 세 열, 아래에 그룹 정의 문구와 ©. 그룹 전화·메일은 없다(문의는 회사로).
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { group, companies, registrationsUrl } from '../data/group';
-import Icon from './Icon.astro';
+
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
 ---
+
 <footer class="ftr">
   <div class="inner">
-    <div class="footer-heading"><a class="brand" href={localizePath('/', lang)}><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a><a class="back-top" href="#main"><span>{t.common.backTop}</span><Icon name="down" size={18} /></a></div>
     <div class="top">
-      <div class="brandcol"><p class="tag">{t.footer.tagline}</p><p class="aud">{t.footer.audience}</p></div>
+      <div class="brandcol">
+        <p class="brand"><span class="mark" aria-hidden="true"></span><span class="name">Dr. Park Group</span></p>
+        <p class="tag">{t.footer.tagline}</p>
+      </div>
       <div class="cols">
-        <div><p class="h">{t.footer.companies}</p><ul>{companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}<Icon name="diagonal" size={12} /></a></li>)}<li class="registration-link"><a href={registrationsUrl} rel="noopener">{t.cta.btn}<Icon name="diagonal" size={12} /></a></li></ul></div>
-        <div><p class="h">{t.footer.site}</p><address>{t.footer.addr1}<br />{t.footer.addr2}<span class="building">{group.site.building}</span></address></div>
+        <div>
+          <p class="h">{t.footer.companies}</p>
+          <ul>
+            {companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a></li>)}
+            <li><a href={registrationsUrl} rel="noopener">{t.cta.btn}</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="h">{t.footer.site}</p>
+          <address>{t.footer.addr1}<br />{t.footer.addr2}<br />{group.site.building}</address>
+        </div>
+        <div>
+          <p class="h">{t.footer.forLabel}</p>
+          <p class="aud">{t.footer.audience}</p>
+        </div>
       </div>
     </div>
-    <div class="base"><p class="note">{t.footer.note}</p><p class="copyright">&copy; {year} {group.name}</p></div>
+    <div class="base">
+      <p class="note">{t.footer.note}</p>
+      <p class="copy">&copy; {year} {group.name}</p>
+    </div>
   </div>
 </footer>
+
 <style>
-  .ftr { background: #0b1827; color: var(--on-dark); padding: 64px var(--gutter) 32px; }
-  .inner { max-width: var(--content-max); margin-inline: auto; }
-  .footer-heading { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffffff20; padding-bottom: 36px; margin-bottom: 40px; }
-  .brand { display: inline-flex; align-items: center; gap: 14px; }
-  .name { font-size: 32px; font-weight: 500; letter-spacing: -.055em; line-height: 1; }
-  .brand-group { display: block; margin-top: 8px; font: 8px var(--font-mono); letter-spacing: .4em; color: var(--accent-light); }
-  .back-top { display: inline-flex; gap: 18px; align-items: center; font-size: 10px; color: #ffffffb3; }
-  .back-top :global(svg) { transform: rotate(180deg); }
-  .back-top:hover { color: var(--accent-light); }
-  .top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 80px; align-items: start; }
-  .tag { font-size: 23px; font-weight: 300; line-height: 1.6; letter-spacing: -.025em; max-width: 24ch; }
-  .aud { margin-top: 24px; max-width: 38ch; font-size: 11px; line-height: 1.8; color: #ffffffa0; }
-  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
-  .h { font: 9px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); margin-bottom: 20px; }
-  ul { list-style: none; display: grid; gap: 14px; }
-  .cols a { display: flex; justify-content: space-between; align-items: center; gap: 14px; font-size: 12px; color: #ffffffcc; }
-  .cols a :global(svg) { color: #ffffff80; flex: none; }
-  .cols a:hover { color: var(--accent-light); }
-  .registration-link { margin-top: 10px; padding-top: 18px; border-top: 1px solid #ffffff20; }
-  .registration-link a { font-size: 10px; }
-  address { font-style: normal; font-size: 11px; line-height: 1.9; color: #ffffffa0; }
-  .building { display: block; margin-top: 10px; font-family: var(--font-mono); font-size: 10px; }
-  .base { display: flex; justify-content: space-between; gap: 48px; align-items: flex-start; margin-top: 56px; padding-top: 24px; border-top: 1px solid #ffffff20; }
-  .note { font-size: 10px; line-height: 1.9; color: #ffffff90; max-width: 90ch; }
-  .copyright { font: 9px var(--font-mono); color: #ffffff90; white-space: nowrap; padding-top: 4px; }
-  @media (max-width: 900px) { .top { grid-template-columns: 1fr; gap: 40px; } .cols { max-width: 700px; } .base { flex-direction: column; gap: 24px; } }
-  @media (max-width: 480px) { .ftr { padding-top: 48px; } .name { font-size: 28px; } .back-top span { display: none; } .back-top { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #ffffff30; } .cols { grid-template-columns: 1fr; gap: 32px; } .tag { font-size: 22px; } .base { margin-top: 40px; } }
+  .ftr { background: var(--navy); color: var(--on-dark); padding: clamp(56px, 6vw, 80px) var(--gutter) var(--s7); }
+  .inner { max-width: 1200px; margin-inline: auto; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s8); align-items: start; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 20px; height: 20px; background: var(--on-dark); flex: none; }
+  .brand .name { font-size: var(--text-sm); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  .tag { margin-top: var(--s4); font-size: var(--text-xs); opacity: 0.7; }
+  .cols { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s8); }
+  .h { font-size: var(--label); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; opacity: 0.55; margin-bottom: var(--s3); }
+  ul { list-style: none; display: grid; gap: 6px; }
+  a, address, .aud { font-size: var(--text-xs); opacity: 0.9; font-style: normal; line-height: 1.6; }
+  a { transition: opacity var(--dur) var(--ease); }
+  a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+  .aud { max-width: 24ch; }
+  .base { display: flex; justify-content: space-between; gap: var(--s6); align-items: flex-start; margin-top: var(--s8); padding-top: var(--s5); border-top: 1px solid rgba(247, 249, 248, 0.25); }
+  .note { font-size: var(--label); line-height: 1.6; opacity: 0.65; max-width: 76ch; }
+  .copy { font-size: var(--label); opacity: 0.5; white-space: nowrap; }
+  @media (max-width: 900px) {
+    .top, .cols { grid-template-columns: 1fr; gap: var(--s6); }
+    .base { flex-direction: column; }
+  }
 </style>
