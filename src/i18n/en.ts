@@ -2,6 +2,7 @@
 // 카피 규칙: 확인된 사실만 · 층별 시제 · 세 층을 하나의 주어로 잇지 않는다 · 자격은 회사 이름 아래 · 그룹은 "함께 쓰는 이름"이지 기업집단이 아니다.
 export const en = {
   nav: {
+    primary: 'Primary navigation',
     founder: 'The founder',
     makes: 'What we make',
     companies: 'Companies',
@@ -10,6 +11,9 @@ export const en = {
     menu: 'Menu',
   },
   common: {
+    language: 'Language',
+    home: 'Home',
+    backTop: 'Back to top',
     founder: 'Dr. Yongho Park',
     scroll: 'Scroll',
     skip: 'Skip to content',
@@ -150,6 +154,9 @@ export const en = {
     btn: 'Registrations & Market Access',
   },
   film: {
+    pending: 'Facility film — public release pending',
+    enlarge: 'View facility photo',
+    close: 'Close photo',
     eyebrow: 'Facility film',
     title: 'The Seongnam site, on film.',
     body: 'Phase 1 viral vector facility, completed August 2025. Shot on site. No stock footage.',

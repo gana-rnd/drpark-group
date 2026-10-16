@@ -39,3 +39,13 @@ vercel --prod --yes   # 배포 (vercel.json 의 framework: astro 필수)
 - GANA R&D 링크가 Vercel 프리뷰 URL — ganarnd.co.kr 컷오버 후 교체 (`group.ts`).
 - 등재 건수 33은 GANA R&D `registrations.json`(2026-09-04)과 맞춘 상수 — R&D 데이터 바뀌면 `group.ts` stats 갱신.
 - 도메인 결정(drparkgroup.com 등) 후 `astro.config.mjs` site · `public/robots.txt`.
+
+## 2026-10-16 — Editorial refinement
+
+기존 현장 통배경과 좌우로 교차하는 패널 구도를 유지한 리디자인입니다. 큰 헤드라인, 번호·헤어라인, 브라스 라인 아이콘, 균형 잡힌 여백, 세 회사의 빠른 탐색을 추가했습니다. 창업자 연혁과 33·2014 수치를 정돈하고, 회사별 자격 문서는 native details로 펼칠 수 있습니다. 시설 사진은 원색 그대로 native dialog로 확대되며, 미정인 영상은 공개 준비 중으로 표시합니다. 헤더에는 현재 섹션과 읽기 진행률을 추가했습니다. 언어 선택은 현재 앵커를 유지하며, 모바일 메뉴·포커스 복귀·reduced-motion을 지원합니다.
+
+`src/styles/home.css`는 `.gateway` 범위에 한정된 홈페이지 스타일이고, `src/components/Icon.astro`는 공통 UI 아이콘입니다. `src/data/group.ts`와 현장 이미지 3개는 원본과 바이트 단위로 같습니다. 새 접근성/상태 문구 이외에 기존 EN/KO 콘텐츠를 변경하지 않았습니다.
+
+검수: `npm run check` 0 errors/warnings/hints, `npm run build` 성공. 한국어 320/390/768/1024/1440px에서 가로 넘침이 없었으며, 내부 앵커·문서 펼치기·사진 모달·언어 선택·카운트업을 확인했습니다. 원본 main 및 운영 배포를 변경하지 않고 별도 브랜치로 전달합니다.
+
+의존성: 기존 npm 잠금 파일을 유지하고 호환되는 보안 패치 5개를 반영했습니다. npm audit에서 Astro 5 계열과 하위 sharp/esbuild에 남은 경고 3건(critical/high/low)은 major upgrade가 필요합니다. 이번 리디자인에서는 Astro 7로 강제 전환하지 않았습니다. 인증/사용자 입력/서버 기능을 추가하지 않은 정적 사이트지만, 운영 배포 전 프레임워크 업그레이드는 별도로 검토해야 합니다.
