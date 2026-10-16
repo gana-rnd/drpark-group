@@ -4,7 +4,7 @@
  */
 :root {
   /* 뉴트럴 */
-  --paper: #f3f1e9;
+  --paper: #f7f8f4;
   --paper-2: #f5f7f6;
   --paper-3: #ecefed;
   --band: #e7ebe8;
@@ -16,9 +16,9 @@
   --heading: #16222c;
 
   /* 액센트 — 브라스 하나. 로고 빨강은 워드마크 전용 */
-  --accent: #a18143;
+  --accent: #9a8050;
   --accent-2: #735f36;
-  --accent-light: #d2b477;
+  --accent-light: #c4ae83;
   --accent-soft: #eee8dc;
   --navy: #0e2139;
   --navy-2: #152e49;
@@ -27,7 +27,7 @@
   /* 통배경 바깥 영역 — 합성 이미지의 기본 톤 */
   --bg-deep: #080c12;
   /* 배경 위에 뜨는 다크 패널("검은 유리") */
-  --glass: #101b27;
+  --glass: rgba(14, 26, 39, 0.95);
 
   /* 기능 색 — 텍스트 색으로만 씀 */
   --ok: #2f6b4f;

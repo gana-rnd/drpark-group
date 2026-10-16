@@ -54,6 +54,3 @@ html.js .is-loaded .hero-fade.d2 { transition-delay: 240ms; }
     transition: none !important;
   }
 }
-
-/* 3줄 헤드라인은 순서대로 짧게, 카드에는 부유 효과를 적용하지 않는다. */
-html.js .is-loaded .hero-line:nth-child(3) > span { transition-delay: 150ms; }

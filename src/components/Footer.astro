@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
 ---
 <footer class="ftr">
   <div class="inner">
-    <div class="footer-heading"><a class="brand" href={localizePath('/', lang)}><span class="name">Dr. Park<span class="brand-group">Group</span></span></a><a class="back-top" href="#main"><span>{t.common.backTop}</span><Icon name="down" size={18} /></a></div>
+    <div class="footer-heading"><a class="brand" href={localizePath('/', lang)}><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="name">Dr. Park<span class="brand-group">GROUP</span></span></a><a class="back-top" href="#main"><span>{t.common.backTop}</span><Icon name="down" size={18} /></a></div>
     <div class="top">
       <div class="brandcol"><p class="tag">{t.footer.tagline}</p><p class="aud">{t.footer.audience}</p></div>
       <div class="cols">
@@ -20,17 +20,18 @@ const year = new Date().getFullYear();
   </div>
 </footer>
 <style>
-  .ftr { background: #0b1520; color: var(--on-dark); padding: 64px var(--gutter) 32px; }
+  .ftr { background: #0b1827; color: var(--on-dark); padding: 64px var(--gutter) 32px; }
   .inner { max-width: var(--content-max); margin-inline: auto; }
-  .footer-heading { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ffffff50; padding-bottom: 44px; margin-bottom: 40px; }
+  .footer-heading { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffffff20; padding-bottom: 36px; margin-bottom: 40px; }
   .brand { display: inline-flex; align-items: center; gap: 14px; }
-  .name { font-size: clamp(52px, 7.8vw, 116px); font-weight: 700; letter-spacing: -.065em; line-height: 1; }
-  .brand-group { display: inline; font: inherit; letter-spacing: inherit; margin-left: .12em; color: var(--accent-light); }
+  .name { font-size: 32px; font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+  .brand-group { display: block; margin-top: 8px; font: 8px var(--font-mono); letter-spacing: .4em; color: var(--accent-light); }
+  .brand :global(.brand-mark) { width: 36px; height: 36px; background: transparent; border: 1px solid #ffffff35; }
   .back-top { display: inline-flex; gap: 18px; align-items: center; font-size: 10px; color: #ffffffb3; }
   .back-top :global(svg) { transform: rotate(180deg); }
   .back-top:hover { color: var(--accent-light); }
   .top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 80px; align-items: start; }
-  .tag { font-size: 28px; font-weight: 600; line-height: 1.6; letter-spacing: -.025em; max-width: 24ch; }
+  .tag { font-size: 23px; font-weight: 300; line-height: 1.6; letter-spacing: -.025em; max-width: 24ch; }
   .aud { margin-top: 24px; max-width: 38ch; font-size: 11px; line-height: 1.8; color: #ffffffa0; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
   .h { font: 9px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-light); margin-bottom: 20px; }
@@ -46,5 +47,5 @@ const year = new Date().getFullYear();
   .note { font-size: 10px; line-height: 1.9; color: #ffffff90; max-width: 90ch; }
   .copyright { font: 9px var(--font-mono); color: #ffffff90; white-space: nowrap; padding-top: 4px; }
   @media (max-width: 900px) { .top { grid-template-columns: 1fr; gap: 40px; } .cols { max-width: 700px; } .base { flex-direction: column; gap: 24px; } }
-  @media (max-width: 480px) { .ftr { padding-top: 48px; } .name { font-size: clamp(32px, 8vw, 40px); } .back-top span { display: none; } .back-top { display: none; } .cols { grid-template-columns: 1fr; gap: 32px; } .tag { font-size: 24px; } .base { margin-top: 40px; } }
+  @media (max-width: 480px) { .ftr { padding-top: 48px; } .name { font-size: 28px; } .back-top span { display: none; } .back-top { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #ffffff30; } .cols { grid-template-columns: 1fr; gap: 32px; } .tag { font-size: 22px; } .base { margin-top: 40px; } }
 </style>
