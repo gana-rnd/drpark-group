@@ -58,6 +58,6 @@ export const layers: { no: string; by: CompanyId[] }[] = [
 export const stats = [
   { n: '5', count: true },
   { n: '1', count: true },
-  { n: '33', count: true },
+  { n: '34', count: true },
   { n: '2014', count: false },
 ];

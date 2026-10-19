@@ -87,7 +87,7 @@ export const en = {
           'GMP conformity KCL-ABBA-19926, valid to 3 March 2027',
           'EUDAMED manufacturer SRN KR-MF-000037221',
           'MHRA manufacturer registration MAN_ID 32678',
-          '33 active product registrations across South Korea, Russia, Brazil and the United Kingdom',
+          '34 active product registrations across South Korea, Russia, Brazil and the United Kingdom',
         ],
         contactLabel: 'Device and distribution enquiries',
       },

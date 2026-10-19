@@ -83,7 +83,7 @@ export const ko: UIStrings = {
           'GMP 적합인정 KCL-ABBA-19926, 2027년 3월 3일까지 유효',
           'EUDAMED 제조자 등록 SRN KR-MF-000037221',
           'MHRA 제조자 등록 MAN_ID 32678',
-          '한국·러시아·브라질·영국 유효 제품 등재 33건',
+          '한국·러시아·브라질·영국 유효 제품 등재 34건',
         ],
         contactLabel: '의료기기·유통 문의',
       },
