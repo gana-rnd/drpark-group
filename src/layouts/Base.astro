@@ -14,9 +14,8 @@ const currentPath = stripLangFromPath(Astro.url.pathname);
 const siteBase = Astro.site?.toString().replace(/\/$/, '') ?? '';
 const canonicalUrl = `${siteBase}${localizePath(currentPath, lang)}`;
 const ogLocale: Record<string, string> = { en: 'en_US', ko: 'ko_KR' };
-// 한국어 페이지에만 Noto Sans KR 추가. 라틴 글리프는 Manrope.
-// Manrope 300(Light)은 v2 헤드라인용.
-const fontsHref = `https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500${lang === 'ko' ? '&family=Noto+Sans+KR:wght@300;400;500;600;700' : ''}&display=swap`;
+// 라틴 글꼴은 셀프호스팅(src/styles/fonts.css → public/fonts). 한국어 페이지만 Noto Sans KR을 외부에서 받는다.
+const notoHref = lang === 'ko' ? 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap' : '';
 // 조직 스키마 — 지분 관계를 함의하는 subOrganization은 쓰지 않는다(6사 통합자료 §3-6). 세 회사는 sameAs 링크로만.
 const orgSchema = JSON.stringify({
   '@context': 'https://schema.org',
@@ -51,9 +50,9 @@ const orgSchema = JSON.stringify({
       <link rel="alternate" hreflang={l.code} href={`${siteBase}${localizePath(currentPath, l.code)}`} />
     ))}
     <link rel="alternate" hreflang="x-default" href={`${siteBase}${currentPath}`} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href={fontsHref} rel="stylesheet" />
+    <link rel="preload" href="/fonts/manrope-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {notoHref && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
+    {notoHref && <link href={notoHref} rel="stylesheet" />}
   </head>
   <body class={hasHero ? 'has-hero' : undefined}>
     <a href="#main" class="skip">{t.common.skip}</a>

@@ -1,65 +1,113 @@
 ---
-// 네이비 푸터(Figma v2) — 워드마크 + 한 줄, 회사·부지·대상 세 열, 아래에 그룹 정의 문구와 ©. 그룹 전화·메일은 없다(문의는 회사로).
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
+// 푸터 — RRE식 마무리: 큰 내비 + 사진 타일로 채운 DP 모자이크(고스트 아웃라인이 여기 맞물려 겹친 채 끝난다) + 회사·부지·대상 열.
+import dp from '../data/dp-path.json';
+import { getLangFromUrl, useTranslations, localizePath } from '../i18n/utils';
 import { group, companies, registrationsUrl } from '../data/group';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+const home = localizePath('/', lang);
+const tf = `scale(${dp.scale}) translate(${dp.tx} ${dp.ty})`;
+// 타일: 3열 × 2행, 사이 간격이 검정으로 남아 블록 느낌
+const cols = 3, rows = 2, gap = 1.6;
+const tw = (dp.viewW - gap * (cols - 1)) / cols, th = (dp.viewH - gap * (rows - 1)) / rows;
+const tiles = Array.from({ length: cols * rows }, (_, i) => ({ x: (i % cols) * (tw + gap), y: Math.floor(i / cols) * (th + gap), src: `/images/mosaic-${i + 1}.webp` }));
+const nav = [['founder', t.nav.founder], ['makes', t.nav.makes], ['companies', t.nav.companies], ['film', t.nav.film], ['contact', t.nav.contact]];
 ---
 
-<footer class="ftr">
+<footer class="ftr" id="footer">
   <div class="inner">
-    <div class="top">
-      <div class="brandcol">
-        <p class="brand"><span class="mark" aria-hidden="true"></span><span class="name">Dr. Park Group</span></p>
-        <p class="tag">{t.footer.tagline}</p>
+    <div class="cols">
+      <div>
+        <p class="h">{t.footer.companies}</p>
+        <ul class="list">
+          {companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}<span class="host mono">{c.host}</span></a></li>)}
+        </ul>
       </div>
-      <div class="cols">
-        <div>
-          <p class="h">{t.footer.companies}</p>
-          <ul>
-            {companies.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a></li>)}
-            <li><a href={registrationsUrl} rel="noopener">{t.cta.btn}</a></li>
-          </ul>
-        </div>
-        <div>
-          <p class="h">{t.footer.site}</p>
-          <address>{t.footer.addr1}<br />{t.footer.addr2}<br />{group.site.building}</address>
-        </div>
-        <div>
-          <p class="h">{t.footer.forLabel}</p>
-          <p class="aud">{t.footer.audience}</p>
-        </div>
+      <div>
+        <p class="h">{t.footer.site}</p>
+        <address>{t.footer.addr1}<br />{t.footer.addr2}<br />{group.site.building}</address>
+        <p class="h" style="margin-top: var(--s6)">{t.footer.forLabel}</p>
+        <p class="aud">{t.footer.audience}</p>
+      </div>
+      <div>
+        <p class="h">{t.cta.title}</p>
+        <p class="aud">{t.cta.body}</p>
+        <a class="bracket" href={registrationsUrl} rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
       </div>
     </div>
+
+    <div class="top">
+      <nav class="bignav" aria-label="Footer">
+        <ul>{nav.map(([id, label]) => <li><a href={`${home}#${id}`}>{label}</a></li>)}</ul>
+        <p class="tag">{t.footer.tagline}</p>
+      </nav>
+      <div class="mosaic-wrap">
+        <div class="mosaic dp-target" data-dp-target data-dp-keep style="--dp-base:1">
+          <svg class="dp-fill" viewBox={`0 0 ${dp.viewW} ${dp.viewH}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dr. Park Group">
+            <defs><clipPath id="dpclip"><path d={dp.d} transform={tf} /></clipPath></defs>
+            <g clip-path="url(#dpclip)">
+              {tiles.map((tl) => <image href={tl.src} x={tl.x} y={tl.y} width={tw} height={th} preserveAspectRatio="xMidYMid slice" />)}
+            </g>
+          </svg>
+        </div>
+        <p class="fname">Dr. Park Group</p>
+      </div>
+    </div>
+
     <div class="base">
       <p class="note">{t.footer.note}</p>
-      <p class="copy">&copy; {year} {group.name}</p>
+      <div class="base-r">
+        <p class="copy">&copy; {year} {group.name}</p>
+        <a class="totop" href="#top" aria-label={t.footer.top}>↑</a>
+      </div>
     </div>
   </div>
 </footer>
 
 <style>
-  .ftr { background: var(--navy); color: var(--on-dark); padding: clamp(56px, 6vw, 80px) var(--gutter) var(--s7); }
-  .inner { max-width: 1200px; margin-inline: auto; }
-  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s8); align-items: start; }
-  .brand { display: inline-flex; align-items: center; gap: 10px; }
-  .brand .mark { width: 20px; height: 20px; background: var(--on-dark); flex: none; }
-  .brand .name { font-size: var(--text-sm); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
-  .tag { margin-top: var(--s4); font-size: var(--text-xs); opacity: 0.7; }
-  .cols { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s8); }
-  .h { font-size: var(--label); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; opacity: 0.55; margin-bottom: var(--s3); }
-  ul { list-style: none; display: grid; gap: 6px; }
-  a, address, .aud { font-size: var(--text-xs); opacity: 0.9; font-style: normal; line-height: 1.6; }
-  a { transition: opacity var(--dur) var(--ease); }
-  a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
-  .aud { max-width: 24ch; }
-  .base { display: flex; justify-content: space-between; gap: var(--s6); align-items: flex-start; margin-top: var(--s8); padding-top: var(--s5); border-top: 1px solid rgba(247, 249, 248, 0.25); }
-  .note { font-size: var(--label); line-height: 1.6; opacity: 0.65; max-width: 76ch; }
-  .copy { font-size: var(--label); opacity: 0.5; white-space: nowrap; }
-  @media (max-width: 900px) {
-    .top, .cols { grid-template-columns: 1fr; gap: var(--s6); }
-    .base { flex-direction: column; }
+  .ftr { position: relative; color: #bac4ca; background: linear-gradient(180deg, rgba(8,12,18,0) 0%, rgba(8,12,18,.92) 14%, #06090e 40%); padding: clamp(96px, 12vw, 180px) clamp(28px, 5.6vw, 80px) var(--s7); display: flex; align-items: flex-end; }
+  .inner { width: 100%; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(40px, 6vw, 120px); align-items: center; padding-block: clamp(56px, 7vw, 100px) clamp(40px, 5vw, 72px); border-top: 1px solid rgba(255,255,255,.14); }
+  .bignav ul { list-style: none; display: grid; gap: 6px; }
+  .bignav a { font-size: clamp(2rem, 4.2vw, 4rem); font-weight: 300; letter-spacing: -.04em; line-height: 1.05; color: #fff; opacity: .9; transition: opacity 240ms var(--ease), padding-left 300ms var(--ease); }
+  .bignav a:hover { opacity: 1; padding-left: 10px; }
+  .bignav .tag { margin-top: var(--s6); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  .mosaic-wrap { display: grid; justify-items: center; gap: var(--s4); }
+  .mosaic { width: clamp(260px, 28vw, 420px); filter: drop-shadow(0 30px 60px rgba(0,0,0,.6)); }
+  .mosaic svg { display: block; width: 100%; height: auto; }
+  .mosaic image { filter: saturate(.9); }
+  .fname { font-size: var(--text-sm); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+
+  .cols { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: clamp(32px, 5vw, 80px); padding-block: 0 var(--s8); }
+  .h { margin-bottom: var(--s4); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .list { list-style: none; display: grid; gap: 10px; }
+  .list a { display: flex; justify-content: space-between; gap: 12px; font-size: var(--text-sm); color: #d9dfe2; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 8px; transition: color 200ms var(--ease); }
+  .list a:hover { color: #fff; }
+  .list .host { color: rgba(255,255,255,.4); font-size: 12px; }
+  address { font-style: normal; font-size: var(--text-sm); line-height: 1.8; }
+  .aud { font-size: var(--text-sm); color: #98a7b0; max-width: 34ch; margin-bottom: var(--s5); }
+  .bracket { position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; font-size: var(--text-sm); font-weight: 600; color: #fff; border: 1px solid rgba(255,255,255,.35); transition: background 220ms var(--ease), color 220ms var(--ease); }
+  .bracket::before, .bracket::after { content: ''; position: absolute; top: -1px; bottom: -1px; width: 7px; border: 1px solid var(--accent); }
+  .bracket::before { left: -1px; border-right: 0; } .bracket::after { right: -1px; border-left: 0; }
+  .bracket:hover { background: #fff; color: var(--navy); }
+  .bracket .arr { transition: transform 300ms var(--ease); } .bracket:hover .arr { transform: translateX(4px); }
+
+  .base { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s6); padding-top: var(--s6); border-top: 1px solid rgba(255,255,255,.14); }
+  .note { max-width: 70ch; font-size: 12.5px; color: #7f8e97; }
+  .base-r { display: flex; align-items: center; gap: var(--s5); }
+  .copy { font-size: 12px; color: #7f8e97; white-space: nowrap; }
+  .totop { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; color: #fff; transition: background 200ms var(--ease), color 200ms var(--ease); }
+  .totop:hover { background: #fff; color: var(--navy); }
+
+  @media (max-width: 1000px) {
+    .top { grid-template-columns: 1fr; }
+    .mosaic-wrap { justify-items: start; }
+    .cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .cols { grid-template-columns: 1fr; }
+    .base { flex-direction: column; align-items: flex-start; }
   }
 </style>

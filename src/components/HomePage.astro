@@ -1,9 +1,11 @@
 ---
-// 게이트웨이 홈 본문 — 2026-10-08 Figma v2를 그대로 이식.
-// 구조: [흰 헤더 바] → 히어로(공장 통배경 위, 헤드라인 좌하 · 소개 우상) → [흰 패널·우] 창업자 + 숫자 2 + 연혁
-//      → [다크 패널·좌] 세 층 → [흰 패널·우] 회사 카드 3 → [전폭·가운데] 시설 영상 → [다크 패널·좌] 문의 라우팅 + 등재 CTA → 네이비 푸터
-// 통배경은 global.css의 body.has-hero. 패널은 배경 위에 떠 있고 한쪽 띠(--strip)로 배경이 보인다.
-// 인용문 없음(창업자 "발언"은 실제 발언이 생길 때까지 금지). 숫자는 33·2014 둘만.
+// 그룹 홈 — RRE Ventures 원페이지 구성(통배경 위에 떠 있는 패널, 좌우 교대) + GC 그룹의 "따라오는 로고" 연출.
+//   · 고정 배경(복도 스틸, 어둡게) + 그레인 → 그 위에 페이퍼/글라스 패널이 좌우 띠를 번갈아 남기며 뜬다
+//   · dp-ghost: 화면 오른쪽 가운데에 머무는 DP 아웃라인. 스크롤 중 [data-dp-target]이 가운데로 오면 그 자리·크기로 끌려가 맞물리고,
+//     맞물리는 순간 타깃의 채운 마크가 드러난다(히어로 → 회사 패널 → 푸터 모자이크에서 겹친 채 끝난다)
+//   · 왼쪽 고정 섹션 인덱스(01~05), 현재 섹션 강조
+// 사실·문구는 i18n, 회사·숫자는 data/group.ts. 창업자 사진 없음(회장 뜻), 인용문 없음, 용량 수치 없음.
+import DpMark from './DpMark.astro';
 import { companies, byId, layers, stats, registrationsUrl, filmUrl } from '../data/group';
 import { getLangFromUrl, useTranslations, tpl } from '../i18n/utils';
 import type { CompanyStrings } from '../i18n/en';
@@ -12,15 +14,38 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const items = t.companies.items as Record<string, CompanyStrings>;
 const cs = (id: string) => items[id];
-const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, label: t.record.stats[i] }));
+const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.nav.makes], ['companies', t.nav.companies], ['film', t.nav.film], ['contact', t.nav.contact]];
 ---
 
-<!-- 히어로 — 배경 없음(통배경이 비친다). 헤드라인 좌하, 소개 두 문단 + 브래킷 우상 -->
+<!-- 통배경: 고정 사진 + 그레인 + 아래쪽 비네트 -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-img"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<!-- 따라오는 DP 아웃라인 -->
+<div class="dp-ghost" aria-hidden="true"><DpMark outline stroke="#ffffff" strokeWidth={1.4} /></div>
+
+<!-- 섹션 인덱스 -->
+<nav class="side-index" aria-label="Sections">
+  <ol>
+    {sections.map(([id, label], i) => (
+      <li><a href={'#' + id} data-index={id}><span class="n">{String(i + 1).padStart(2, '0')}</span><span class="l">{label}</span></a></li>
+    ))}
+  </ol>
+</nav>
+
+<!-- 히어로: 바이오리액터 홀 전폭 사진. 헤드라인 좌하 · 소개 우상 · DP 마크가 오른쪽 가운데(= 고스트의 시작 자리) -->
 <section class="hero" id="top">
+  <picture class="hero-photo">
+    <source media="(max-width: 700px)" srcset="/images/hero-m.webp" />
+    <img src="/images/hero.webp" width="2400" height="1350" alt="" fetchpriority="high" decoding="async" />
+  </picture>
   <div class="hero-shade" aria-hidden="true"></div>
-  <div class="hero-grid">
+  <div class="hero-mark dp-target" data-dp-target style="--dp-base:0.14"><DpMark class="dp-fill" fill="#ffffff" /></div>
+  <div class="hero-inner">
     <div class="hero-copy">
-      <p class="eyebrow on-dark hero-fade d1">{t.hero.eyebrow}</p>
+      <p class="eyebrow light hero-fade d1">{t.hero.eyebrow}</p>
       <h1 class="hero-title">
         <span class="hero-line"><span>{t.hero.title1}</span></span>
         <span class="hero-line"><span>{t.hero.title2}</span></span>
@@ -28,44 +53,45 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
     </div>
     <div class="hero-intro hero-fade d2">
       <p>{t.hero.sub}</p>
-      <p class="dim">{t.footer.note}</p>
-      <a class="bracket on-dark" href="#companies">{t.nav.companies}</a>
+      <a class="bracket light" href="#companies">{t.hero.cta}<span class="arr">→</span></a>
     </div>
   </div>
+  <div class="scroll-cue hero-fade d2" aria-hidden="true"><span>{t.common.scroll}</span><i></i></div>
 </section>
 
-<!-- 창업자 — 흰 패널, 오른쪽 정렬. 좌 문단 / 우 숫자 2 + 연혁 -->
+<!-- 01 창업자 — 페이퍼 패널(왼쪽 띠). 좌 문단+연혁 / 우 숫자 열 -->
 <section class="panel paper right" id="founder" data-reveal>
-  <div class="grid two">
+  <div class="grid-2">
     <div class="copy">
-      <p class="eyebrow">{t.founder.eyebrow}</p>
+      <p class="eyebrow"><span class="no">01</span>{t.founder.eyebrow}</p>
       <h2>{t.founder.title}</h2>
       <p>{t.founder.p1}</p>
       <p>{t.founder.p2}</p>
-    </div>
-    <div class="facts">
-      <div class="stats2">
-        {keyStats.map((s) => (
-          <div class="stat">
-            {s.count ? <div class="n" data-count={s.n}>{s.n}</div> : <div class="n">{s.n}</div>}
-            <div class="l">{s.label}</div>
-          </div>
-        ))}
-      </div>
       <ol class="timeline">
-        {t.founder.timeline.map((e) => (
-          <li><span class="y">{e.y}</span><span class="d">{e.t}</span></li>
-        ))}
+        {t.founder.timeline.map((e) => <li><span class="y mono">{e.y}</span><span class="d">{e.t}</span></li>)}
       </ol>
     </div>
+    <div class="statcol">
+      <p class="eyebrow">{t.record.eyebrow}</p>
+      {stats.map((s, i) => (
+        <div class="stat">
+          {s.count ? <div class="n" data-count={s.n}>{s.n}</div> : <div class="n">{s.n}</div>}
+          <div class="l">{t.record.stats[i]}</div>
+        </div>
+      ))}
+    </div>
   </div>
+  <figure class="strip">
+    <img src="/images/gana-line.webp" width="1600" height="1000" alt="Vial filling line at the GANA R&D site in Seongnam" loading="lazy" decoding="async" />
+    <figcaption><span class="mono">GANA R&D</span> · Seongnam</figcaption>
+  </figure>
 </section>
 
-<!-- 무엇을 만드는가 — 다크 패널, 왼쪽 정렬. 세 층, 층별 시제. 세 층을 하나의 주어로 잇지 않는다. -->
+<!-- 02 무엇을 만드는가 — 글라스 패널(오른쪽 띠). 네 층 2×2 -->
 <section class="panel glass left" id="makes" data-reveal>
-  <div class="grid two head">
+  <div class="grid-2 head">
     <div>
-      <p class="eyebrow">{t.makes.eyebrow}</p>
+      <p class="eyebrow"><span class="no">02</span>{t.makes.eyebrow}</p>
       <h2>{t.makes.title}</h2>
     </div>
     <p class="lead">{t.makes.lead}</p>
@@ -73,7 +99,7 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   <div class="layers">
     {layers.map((l, i) => (
       <div class="layer">
-        <span class="no">{l.no}</span>
+        <span class="mono no">{l.no}</span>
         <h3>{t.makes.layers[i].name}</h3>
         <p>{t.makes.layers[i].what}</p>
         <p class="tense">{t.makes.layers[i].tense}</p>
@@ -84,214 +110,345 @@ const keyStats = [2, 3].map((i) => ({ n: stats[i].n, count: stats[i].count, labe
   <p class="note">{t.makes.note}</p>
 </section>
 
-<!-- 세 회사 — 흰 패널, 오른쪽 정렬. 카드 3, 자격은 각 회사 이름 아래 -->
+<!-- 03 회사 — 페이퍼 패널(왼쪽 띠). 제목 옆 DP 마크(고스트가 여기 맞물림), 아코디언 5 -->
 <section class="panel paper right" id="companies" data-reveal>
-  <div class="grid two head">
-    <div>
-      <p class="eyebrow">{t.companies.eyebrow}</p>
-      <h2>{t.companies.title}</h2>
+  <div class="grid-2 head">
+    <div class="with-mark">
+      <div class="co-mark dp-target" data-dp-target style="--dp-base:0.1"><DpMark class="dp-fill" fill="currentColor" /></div>
+      <div>
+        <p class="eyebrow"><span class="no">03</span>{t.companies.eyebrow}</p>
+        <h2>{t.companies.title}</h2>
+      </div>
     </div>
     <p class="lead">{t.companies.lead}</p>
   </div>
-  <div class="cards">
-    {companies.map((c, index) => (
-      <article class="card">
-        <div class="card-top">
-          <p class="eyebrow">{cs(c.id).field}</p>
-          <span class="card-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+  <div class="acc">
+    {companies.map((c, i) => (
+      <details class="co" name="company" open={i === 0}>
+        <summary>
+          <span class="idx mono">{String(i + 1).padStart(2, '0')}</span>
+          <span class="name">{c.name}</span>
+          <span class="field">{cs(c.id).field}</span>
+          <span class="plus" aria-hidden="true"></span>
+        </summary>
+        <div class="co-body">
+          <div class="co-main">
+            <p class="tag">{cs(c.id).tagline}</p>
+            <p>{cs(c.id).makes}</p>
+            <dl>
+              <dt>{t.companies.servesLabel}</dt><dd>{cs(c.id).serves}</dd>
+              <dt>{t.companies.statusLabel}</dt><dd>{cs(c.id).status}</dd>
+            </dl>
+          </div>
+          <div class="co-side">
+            <p class="h">{t.companies.credentialsLabel}</p>
+            <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
+            <a class="bracket" href={c.url} rel="noopener">{tpl(t.common.visit, { name: c.name })}<span class="arr">→</span></a>
+          </div>
         </div>
-        <h3>{c.name}</h3>
-        <p class="tag">{cs(c.id).tagline}</p>
-        <p class="status">{cs(c.id).status}</p>
-        <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
-        <a class="bracket" href={c.url} rel="noopener">{tpl(t.common.visit, { name: c.name })}</a>
-      </article>
+      </details>
     ))}
   </div>
 </section>
 
-<!-- 시설 영상 — 전폭, 문구 + 썸네일 한 세트를 가운데. 썸네일은 보정 없이 영상 원색 그대로. -->
+<!-- 04 영상 — 패널 없이 배경 위. 좌 문구 / 우 썸네일 -->
 <section class="film" id="film" data-reveal>
-  <div class="film-set">
+  <div class="film-grid">
     <div class="copy">
-      <p class="eyebrow">{t.film.eyebrow}</p>
+      <p class="eyebrow light"><span class="no">04</span>{t.film.eyebrow}</p>
       <h2>{t.film.title}</h2>
       <p>{t.film.body}</p>
       {filmUrl
-        ? <a class="bracket on-dark" href={filmUrl} rel="noopener">{t.film.watch}</a>
-        : <span class="bracket on-dark pending" title="Film URL pending">{t.film.watch}</span>}
+        ? <a class="bracket light" href={filmUrl} rel="noopener">{t.film.watch}<span class="arr">→</span></a>
+        : <span class="bracket light pending" title={t.film.pending}>{t.film.watch}</span>}
     </div>
     <figure class="thumb">
       <div class="frame">
-        <img src="/images/film-thumb.webp" width="1280" height="720" alt={t.film.alt} loading="lazy" />
-        {filmUrl && <span class="play" aria-hidden="true"></span>}
+        <img src="/images/film.webp" width="1600" height="900" alt={t.film.alt} loading="lazy" decoding="async" />
+        <span class="play" aria-hidden="true"></span>
       </div>
       <figcaption>{t.film.caption}</figcaption>
     </figure>
   </div>
 </section>
 
-<!-- 문의 라우팅 — 다크 패널, 왼쪽 정렬. 그룹 채널 없음, 회사별 법인 채널 + 등재 자료실 CTA -->
+<!-- 05 문의 — 글라스 패널(오른쪽 띠). 회사별 채널 행 + 등재 CTA -->
 <section class="panel glass left" id="contact" data-reveal>
-  <p class="eyebrow">{t.contact.eyebrow}</p>
-  <h2>{t.contact.title}</h2>
-  <p class="lead">{t.contact.lead}</p>
-  <div class="table-wrap plain">
-    <table class="route">
-      <thead><tr><th>{t.contact.thCompany}</th><th>{t.contact.thFor}</th><th>{t.contact.thChannel}</th></tr></thead>
-      <tbody>
-        {companies.map((c) => (
-          <tr>
-            <td class="co">{c.name}</td>
-            <td class="for">{cs(c.id).contactLabel}</td>
-            <td class="ch">
-              {c.tel && <span class="mono">{c.tel}</span>}
-              {c.email && <a class="mono" href={'mailto:' + c.email}>{c.email}</a>}
-              <a class="go" href={c.contactUrl} rel="noopener">{tpl(t.common.contactCo, { name: c.name })} →</a>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+  <div class="grid-2 head">
+    <div>
+      <p class="eyebrow"><span class="no">05</span>{t.contact.eyebrow}</p>
+      <h2>{t.contact.title}</h2>
+    </div>
+    <p class="lead">{t.contact.lead}</p>
   </div>
-  <div class="cta-row">
-    <p><b>{t.cta.title}</b> {t.cta.body}</p>
-    <a class="bracket on-dark" href={registrationsUrl} rel="noopener">{t.cta.btn}</a>
+  <ul class="rows">
+    <li class="rows-head" aria-hidden="true"><span>{t.contact.thCompany}</span><span>{t.contact.thFor}</span><span>{t.contact.thChannel}</span><span></span></li>
+    {companies.map((c) => (
+      <li>
+        <span class="co">{c.name}</span>
+        <span class="for">{cs(c.id).contactLabel}</span>
+        <span class="ch mono">{c.tel ?? c.email ?? c.host}</span>
+        <a class="go" href={c.contactUrl} rel="noopener">{tpl(t.common.contactCo, { name: c.name })}<span class="arr">→</span></a>
+      </li>
+    ))}
+  </ul>
+  <div class="reg-cta">
+    <div><h3>{t.cta.title}</h3><p>{t.cta.body}</p></div>
+    <a class="bracket" href={registrationsUrl} rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
   </div>
 </section>
 
 <style>
-  /* ── 공통: 아이브로우(브라스 대문자) · 브래킷 버튼(점선) · 제목 Light ── */
-  .eyebrow { display: block; font-size: var(--label); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: var(--s4); }
-  .eyebrow::before { content: none; }
-  .eyebrow.on-dark { color: rgba(247, 249, 248, 0.8); }
-  .bracket {
-    display: inline-flex; align-items: center; padding: 12px 18px;
-    border: 1px solid rgba(22, 34, 44, 0.7); box-shadow: inset 3px 0 0 var(--accent);
-    font-size: var(--label); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink);
-    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-  }
-  .bracket:hover { background: rgba(22, 34, 44, 0.06); border-color: var(--ink); transform: translateY(-1px); }
-  .bracket.on-dark, .glass .bracket { border-color: rgba(247, 249, 248, 0.7); color: var(--on-dark); }
-  .bracket.on-dark:hover, .glass .bracket:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--on-dark); }
-  .bracket.pending { cursor: default; opacity: 0.6; }
-  .bracket.pending:hover { background: transparent; border-color: rgba(247, 249, 248, 0.7); transform: none; }
-  h2 { font-weight: 300; font-size: var(--text-h2); line-height: 1.12; letter-spacing: -0.03em; max-width: 16ch; color: inherit; }
-  h3 { color: inherit; }
-  .lead { font-size: var(--text-sm); line-height: 1.68; max-width: 56ch; }
-  :global(html[lang="ko"]) h2 { letter-spacing: -0.01em; max-width: 20ch; }
+  /* ── 배경 ── */
+  .bg { position: fixed; inset: 0; z-index: -1; background: var(--bg-deep); }
+  .bg-img { position: absolute; inset: 0; background: url('/images/bg.webp') center / cover no-repeat; opacity: .9; }
+  .bg-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,12,18,.2), rgba(8,12,18,.55) 60%, rgba(8,12,18,.85)); }
+  .bg-grain { position: absolute; inset: 0; opacity: .07; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ── 고스트 ── */
+  .dp-ghost { position: fixed; left: 0; top: 0; width: 150px; z-index: 40; pointer-events: none; mix-blend-mode: difference; opacity: .72; will-change: transform, opacity; transition: opacity 320ms var(--ease); }
+  .dp-ghost svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1px rgba(0,0,0,.25)); }
+  .dp-ghost.is-hidden { opacity: 0; }
+  html.no-ghost .dp-ghost, .dp-ghost.is-off { display: none; }
+  /* 타깃: 채운 마크는 평소 옅게(--dp-base), 맞물리면 또렷하게 */
+  .dp-target { line-height: 0; }
+  .dp-target .dp-fill { display: block; width: 100%; height: auto; opacity: var(--dp-base, 0); transition: opacity 420ms var(--ease), filter 420ms var(--ease); }
+  .dp-target.is-locked .dp-fill { opacity: 1; }
+  html.no-ghost .dp-target .dp-fill { opacity: 1; }
+
+  /* ── 섹션 인덱스 ── */
+  .side-index { position: fixed; left: 24px; top: 50%; transform: translateY(-50%); z-index: 30; mix-blend-mode: difference; color: #fff; }
+  .side-index ol { list-style: none; display: grid; gap: 14px; }
+  .side-index a { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; transition: opacity 240ms var(--ease); border-left: 1px solid rgba(255,255,255,.45); padding-left: 10px; }
+  .side-index .n { font-family: var(--font-mono); font-size: 11px; }
+  .side-index .l { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width 360ms var(--ease), opacity 240ms var(--ease); opacity: 0; }
+  .side-index a.is-current { opacity: 1; border-left-width: 2px; }
+  .side-index a:hover .l { max-width: 180px; opacity: 1; }
+  @media (max-width: 1180px) { .side-index { display: none; } }
+
+  /* ── 공통 ── */
+  .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: var(--s4); color: var(--ink-3); font-size: 11.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent); flex: none; }
+  .eyebrow .no { font-family: var(--font-mono); color: var(--accent); font-weight: 500; letter-spacing: .08em; }
+  .eyebrow.light { color: rgba(255,255,255,.72); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .lead { font-size: var(--text-lg); line-height: 1.6; color: var(--ink-2); }
+  .bracket { position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; font-size: var(--text-sm); font-weight: 600; color: var(--ink); letter-spacing: -.005em; border: 1px solid rgba(22,34,44,.32); transition: background 220ms var(--ease), color 220ms var(--ease), border-color 220ms var(--ease); }
+  .bracket::before, .bracket::after { content: ''; position: absolute; top: -1px; bottom: -1px; width: 7px; border: 1px solid var(--accent); }
+  .bracket::before { left: -1px; border-right: 0; } .bracket::after { right: -1px; border-left: 0; }
+  .bracket .arr { transition: transform 300ms var(--ease-out-expo, var(--ease)); }
+  .bracket:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .bracket:hover .arr { transform: translateX(4px); }
+  .bracket.light { color: #fff; border-color: rgba(255,255,255,.4); }
+  .bracket.light:hover { background: #fff; color: var(--navy); border-color: #fff; }
+  .bracket.pending { opacity: .6; cursor: default; }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .grid-2.head { align-items: end; margin-bottom: clamp(36px, 4vw, 56px); }
+  .grid-2.head .lead { max-width: 46ch; }
+  h2 { font-weight: 400; font-size: clamp(1.9rem, 3.1vw, 2.9rem); letter-spacing: -.028em; line-height: 1.08; max-width: 18ch; }
+  .panel p + p { margin-top: var(--s4); }
+  .panel h2 + p { margin-top: var(--s5); }
+
+  /* ── 패널 ── */
+  .panel { position: relative; width: calc(100% - var(--strip)); padding: clamp(44px, 5.4vw, 84px) clamp(32px, 5vw, 80px); margin-top: clamp(28px, 3vw, 40px); }
+  .panel.right { margin-left: auto; }
+  .panel.left { margin-right: auto; }
+  .panel.paper { background: linear-gradient(180deg, #f8faf9 0%, #eef2f0 100%); color: var(--ink); box-shadow: 0 40px 90px rgba(0,0,0,.42), 0 1px 0 rgba(255,255,255,.55) inset; }
+  .panel.paper::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), rgba(154,128,80,.15)); }
+  .panel.glass { background: linear-gradient(160deg, rgba(14,33,57,.84), rgba(10,22,38,.9)); color: var(--on-dark); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 40px 90px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.08) inset; }
+  .panel.glass::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), rgba(154,128,80,.15)); }
+  .panel.glass h2, .panel.glass h3 { color: #fff; }
+  .panel.glass .lead, .panel.glass p { color: rgba(247,249,248,.76); }
+  .panel.glass .eyebrow { color: rgba(255,255,255,.62); }
+  .panel.glass .bracket { color: #fff; border-color: rgba(255,255,255,.35); }
+  .panel.glass .bracket:hover { background: #fff; color: var(--navy); }
+  .panel.paper .copy p { color: var(--ink-2); max-width: 58ch; }
 
   /* ── 히어로 ── */
-  .hero { position: relative; min-height: min(88vh, 760px); display: grid; align-items: end; padding: clamp(40px, 6vw, 96px) var(--gutter); color: var(--on-dark); overflow: hidden; }
-  .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.25) 55%, rgba(0, 0, 0, 0.7) 100%); pointer-events: none; }
-  .hero-grid { position: relative; width: 100%; max-width: var(--content-max); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s8); align-items: end; min-height: inherit; }
-  .hero-title { font-weight: 300; font-size: var(--text-display); line-height: 1.08; letter-spacing: -0.03em; color: var(--on-dark); max-width: 12em; }
-  :global(html[lang="ko"]) .hero-title { letter-spacing: -0.01em; max-width: 11em; }
-  .hero-intro { align-self: start; justify-self: end; max-width: 440px; display: grid; gap: var(--s5); padding-top: clamp(20px, 4vw, 48px); border-top: 1px solid rgba(247, 249, 248, 0.32); }
-  .hero-intro p { font-size: var(--text-sm); line-height: 1.65; }
-  .hero-intro .dim { opacity: 0.85; }
-  .hero-intro .bracket { justify-self: start; }
-  @media (max-width: 900px) {
-    .hero { min-height: 0; padding-top: var(--s7); padding-bottom: var(--s8); }
-    .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
-    .hero-intro { justify-self: start; padding-top: var(--s5); }
-  }
-  @media (max-width: 480px) {
-    .hero { padding-top: var(--s6); padding-bottom: var(--s7); }
-    .hero-grid { gap: var(--s6); }
-    .hero-intro { gap: var(--s4); padding-top: var(--s4); }
-    .hero-intro .bracket { order: 1; }
-    .hero-intro .dim { order: 2; }
-  }
+  .hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; color: #fff; overflow: hidden; isolation: isolate; }
+  .hero-photo, .hero-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
+  .hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,12,18,.78) 0%, rgba(8,12,18,.45) 45%, rgba(8,12,18,.15) 100%), linear-gradient(0deg, var(--bg-deep) 0%, rgba(8,12,18,.4) 34%, rgba(8,12,18,0) 62%), linear-gradient(180deg, rgba(8,12,18,.5), transparent 28%); }
+  .hero-inner { position: relative; z-index: 1; width: 100%; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: clamp(32px, 5vw, 80px); align-items: end; padding: 0 clamp(28px, 5.6vw, 80px) clamp(72px, 9vw, 128px); }
+  .hero-title { font-weight: 300; font-size: clamp(2.9rem, 7.4vw, 7.2rem); line-height: .98; letter-spacing: -.045em; color: #fff; max-width: 10ch; }
+  .hero-title .hero-line:first-child > span::first-letter { color: var(--accent); }
+  .hero-intro { padding-bottom: .5em; }
+  .hero-intro p { max-width: 42ch; font-size: var(--text-lg); line-height: 1.6; color: rgba(255,255,255,.8); margin-bottom: var(--s6); }
+  .hero-mark { position: absolute; right: 8.5vw; top: calc(50svh - (var(--gw) / 1.1684) / 2); width: var(--gw); z-index: 1; color: #fff; filter: drop-shadow(0 20px 40px rgba(0,0,0,.45)); }
+  .hero-mark .dp-fill { opacity: var(--dp-base); }
+  .scroll-cue { position: absolute; left: clamp(28px, 5.6vw, 80px); bottom: 28px; display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.6); z-index: 1; }
+  .scroll-cue i { display: block; width: 56px; height: 1px; background: rgba(255,255,255,.35); position: relative; overflow: hidden; }
+  .scroll-cue i::after { content: ''; position: absolute; left: -30%; width: 30%; height: 100%; background: #fff; animation: cue 2.4s var(--ease) infinite; }
+  @keyframes cue { to { left: 110%; } }
 
-  /* ── 패널 시스템 — 통배경 위에 떠 있는 상자. 데스크톱에서 한쪽에 --strip 폭의 배경 띠를 남긴다 ── */
-  .panel { position: relative; isolation: isolate; padding: clamp(56px, 7vw, 104px) clamp(24px, 8.3vw, 120px); }
-  .panel.paper { background: var(--paper); color: var(--ink); }
-  .panel.glass { background: var(--glass); color: var(--on-dark); }
-  @media (min-width: 1100px) {
-    .panel { width: calc(100% - var(--strip)); }
-    .panel.right { margin-left: auto; }
-    .panel.left { margin-right: auto; }
-    .panel::before { content: ''; position: absolute; top: 0; width: 2px; height: clamp(68px, 8vw, 112px); background: var(--accent); }
-    .panel.right::before { left: 0; }
-    .panel.left::before { right: 0; }
-  }
-  .grid.two { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 5.5vw, 80px); align-items: start; }
-  .copy > * + * { margin-top: var(--s5); }
-  .copy h2 { margin-bottom: var(--s2); }
-  .copy p:not(.eyebrow) { font-size: var(--text-sm); line-height: 1.68; max-width: 48ch; }
-  .glass .lead { color: inherit; opacity: 0.85; }
-  @media (max-width: 900px) { .grid.two { grid-template-columns: 1fr; gap: var(--s6); } }
+  /* ── 01 창업자 ── */
+  .timeline { list-style: none; margin-top: var(--s7); border-top: 1px solid var(--ink); }
+  .timeline li { display: grid; grid-template-columns: 72px 1fr; gap: var(--s5); padding: 14px 0; border-bottom: 1px solid var(--line); font-size: var(--text-sm); color: var(--ink-2); }
+  .timeline .y { color: var(--accent); }
+  .statcol { display: grid; align-content: start; }
+  .statcol .eyebrow { margin-bottom: var(--s2); }
+  .stat { padding: 22px 0; border-top: 1px solid var(--ink); }
+  .stat:last-child { border-bottom: 1px solid var(--ink); }
+  .stat .n { font-size: clamp(2.6rem, 4.2vw, 4rem); font-weight: 300; letter-spacing: -.045em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stat .l { margin-top: 8px; font-size: var(--text-sm); color: var(--ink-2); max-width: 30ch; }
+  .strip { margin-top: clamp(40px, 5vw, 64px); position: relative; aspect-ratio: 16 / 6; overflow: hidden; background: var(--band); }
+  .strip img { width: 100%; height: 100%; object-fit: cover; object-position: center 45%; }
+  .strip::after { content: ''; position: absolute; inset: 0; box-shadow: 0 0 0 1px rgba(22,34,44,.12) inset; pointer-events: none; }
+  .strip figcaption { position: absolute; left: 18px; bottom: 14px; color: #fff; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
 
-  /* ── 창업자: 숫자 2 + 연혁 ── */
-  .stats2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .stat { border-top: 1px solid var(--line-strong); padding: var(--s5) var(--s5) var(--s6) 0; }
-  .stat .n { color: var(--ink); font-size: clamp(2.5rem, 3.4vw, 3rem); font-weight: 300; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
-  .stat .l { margin-top: var(--s3); font-size: 0.625rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); line-height: 1.5; max-width: 26ch; }
-  .timeline { list-style: none; margin-top: var(--s7); border-bottom: 1px solid var(--line); }
-  .timeline li { display: grid; grid-template-columns: 56px 1fr; gap: var(--s5); padding: var(--s4) 0; border-top: 1px solid var(--line); font-size: var(--text-xs); line-height: 1.6; }
-  .timeline .y { color: var(--accent); font-weight: 600; }
-  @media (max-width: 480px) { .stats2 { grid-template-columns: 1fr; } .stat { padding-right: 0; } }
+  /* ── 02 층 ── */
+  .layers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid rgba(255,255,255,.22); border-left: 1px solid rgba(255,255,255,.12); }
+  .layer { padding: clamp(24px, 2.6vw, 36px); border-right: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); display: grid; gap: 10px; align-content: start; min-height: 230px; }
+  .layer .no { color: var(--accent); font-size: 11px; letter-spacing: .1em; }
+  .layer h3 { font-size: clamp(1.35rem, 1.9vw, 1.7rem); font-weight: 400; letter-spacing: -.02em; }
+  .layer p { font-size: var(--text-sm); }
+  .layer .tense { color: #fff !important; }
+  .layer .by { margin-top: auto; padding-top: var(--s3); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5) !important; }
+  .note { margin-top: var(--s6); max-width: 70ch; font-size: var(--text-sm); color: rgba(247,249,248,.6) !important; }
 
-  /* ── 세 층 ── */
-  .layers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s7); margin-top: var(--s8); }
-  .layer { border-top: 1px solid rgba(247, 249, 248, 0.35); padding-top: var(--s5); display: grid; gap: var(--s3); align-content: start; }
-  .layer .no { font-size: var(--label); letter-spacing: 0.08em; color: var(--accent); }
-  .layer h3 { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
-  .layer p { font-size: var(--text-xs); line-height: 1.62; opacity: 0.85; }
-  .layer .tense { font-size: 0.625rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); opacity: 1; }
-  .layer .by { font-size: var(--label); opacity: 0.6; }
-  .note { margin-top: var(--s8); font-size: var(--text-xs); line-height: 1.6; max-width: 76ch; opacity: 0.6; }
-  @media (max-width: 900px) { .layers { grid-template-columns: 1fr; gap: var(--s5); } .note { margin-top: var(--s6); } }
+  /* ── 03 회사 ── */
+  .with-mark { display: grid; grid-template-columns: auto 1fr; gap: clamp(20px, 2.4vw, 36px); align-items: end; }
+  .co-mark { width: clamp(64px, 6vw, 92px); color: var(--ink); align-self: center; }
+  .acc { border-top: 1px solid var(--ink); }
+  .co { border-bottom: 1px solid var(--line-strong); }
+  .co summary { display: grid; grid-template-columns: 52px minmax(0, 1.1fr) minmax(0, 1fr) 28px; align-items: center; gap: var(--s4); padding: 22px 0; cursor: pointer; list-style: none; transition: padding-left 300ms var(--ease); }
+  .co summary::-webkit-details-marker { display: none; }
+  .co summary:hover { padding-left: 6px; }
+  .co .idx { color: var(--accent); font-size: 12px; }
+  .co .name { font-size: clamp(1.25rem, 1.9vw, 1.7rem); font-weight: 400; letter-spacing: -.02em; color: var(--ink); }
+  .co .field { font-size: var(--text-sm); color: var(--ink-3); }
+  .co .plus { position: relative; width: 16px; height: 16px; justify-self: end; }
+  .co .plus::before, .co .plus::after { content: ''; position: absolute; background: var(--ink); left: 50%; top: 50%; transition: transform 300ms var(--ease); }
+  .co .plus::before { width: 16px; height: 1px; transform: translate(-50%, -50%); }
+  .co .plus::after { width: 1px; height: 16px; transform: translate(-50%, -50%); }
+  .co[open] .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .co-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(32px, 5vw, 80px); padding: 4px 0 36px 52px; animation: open 420ms var(--ease) both; }
+  @keyframes open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .co-main .tag { font-size: var(--text-lg); color: var(--ink); max-width: 36ch; }
+  .co-main p + p { margin-top: var(--s3); }
+  .co-main p { font-size: var(--text-sm); color: var(--ink-2); max-width: 56ch; }
+  .co-main dl { margin-top: var(--s5); display: grid; grid-template-columns: 90px 1fr; gap: 8px var(--s4); font-size: var(--text-sm); }
+  .co-main dt { color: var(--ink-3); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding-top: 4px; }
+  .co-main dd { color: var(--ink-2); }
+  .co-side .h { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: var(--s3); }
+  .creds { list-style: none; border-top: 1px solid var(--line-strong); margin-bottom: var(--s5); }
+  .creds li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: var(--text-sm); color: var(--ink-2); }
 
-  /* ── 회사 카드 ── */
-  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); margin-top: var(--s8); }
-  .card { background: var(--band); border: 1px solid var(--line); padding: var(--s6); display: flex; flex-direction: column; gap: var(--s4); }
-  .card-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
-  .card .eyebrow { margin-bottom: 0; }
-  .card-index { padding-left: var(--s3); border-left: 1px solid var(--line-strong); color: var(--accent-2); font-family: var(--font-mono); font-size: var(--label); font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
-  .card h3 { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; }
-  .card .tag { font-size: var(--text-sm); line-height: 1.55; }
-  .card .status { font-size: var(--text-xs); color: var(--ink-2); line-height: 1.55; white-space: normal; }
-  .creds { list-style: none; margin-top: var(--s2); border-bottom: 1px solid var(--line-strong); }
-  .creds li { border-top: 1px solid var(--line-strong); padding: var(--s3) 0; font-size: var(--text-xs); line-height: 1.5; }
-  .card .bracket { margin-top: auto; align-self: flex-start; }
-  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; margin-top: var(--s6); } }
-  @media (max-width: 375px) { .card { padding: var(--s5); } }
-
-  /* ── 시설 영상 — 가운데 정렬 세트 ── */
-  .film { padding: clamp(64px, 8vw, 120px) var(--gutter); color: var(--on-dark); }
-  .film-set { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 640px); gap: clamp(40px, 6vw, 96px); align-items: center; justify-content: center; }
-  .film .copy { display: grid; gap: var(--s5); }
-  .film .copy > * + * { margin-top: 0; }
-  .film h2 { color: var(--on-dark); }
-  .film .copy p:not(.eyebrow) { font-size: var(--text-sm); line-height: 1.68; opacity: 0.85; max-width: 40ch; }
-  .film .bracket { justify-self: start; }
+  /* ── 04 영상 ── */
+  .film { color: #fff; padding: clamp(80px, 10vw, 150px) clamp(28px, 5.6vw, 80px); }
+  .film-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+  .film h2 { color: #fff; }
+  .film .copy p { color: rgba(255,255,255,.75); margin: var(--s4) 0 var(--s6); max-width: 40ch; }
   .thumb { margin: 0; }
-  .thumb .frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--navy); }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: rgba(247, 249, 248, 0.92); }
-  .play::after { content: ''; position: absolute; left: 26px; top: 20px; border-left: 16px solid var(--ink); border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
-  .thumb figcaption { margin-top: var(--s3); font-size: var(--label); opacity: 0.7; }
-  @media (max-width: 900px) { .film-set { grid-template-columns: 1fr; gap: var(--s6); } }
+  .thumb .frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--navy); box-shadow: 0 50px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.1); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); transition: transform 1.2s var(--ease-out-expo, var(--ease)); }
+  .thumb:hover img { transform: scale(1.06); }
+  .play { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(255,255,255,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(14,33,57,.35); }
+  .play::after { content: ''; position: absolute; left: 53%; top: 50%; transform: translate(-50%, -50%); border-left: 14px solid #fff; border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+  .thumb figcaption { margin-top: 12px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.55); }
 
-  /* ── 문의 라우팅 표 + CTA 행 ── */
-  .table-wrap.plain { background: none; }
-  .route { width: 100%; border-collapse: collapse; margin-top: var(--s7); font-size: var(--text-sm); }
-  .route th { text-align: left; font-size: 0.625rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; padding: 0 var(--s5) var(--s3) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.4); }
-  .route td { padding: var(--s4) var(--s5) var(--s4) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.25); vertical-align: top; line-height: 1.6; }
-  .route .co { font-weight: 600; white-space: nowrap; width: 20%; }
-  .route .for { opacity: 0.85; }
-  .route .ch { display: grid; gap: 4px; font-size: var(--text-xs); }
-  .route .go { opacity: 0.7; }
-  .route .go:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
-  .cta-row { margin-top: var(--s7); display: flex; justify-content: space-between; align-items: center; gap: var(--s6); flex-wrap: wrap; }
-  .cta-row p { font-size: var(--text-xs); line-height: 1.6; opacity: 0.8; max-width: 62ch; }
-  .cta-row b { font-weight: 600; }
+  /* ── 05 문의 ── */
+  .rows { list-style: none; border-top: 1px solid rgba(255,255,255,.3); }
+  .rows li { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.3fr) minmax(160px, .8fr) auto; gap: var(--s4); align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,.12); font-size: var(--text-sm); }
+  .rows .rows-head { padding: 10px 0; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+  .rows .co { color: #fff; font-size: var(--text-base); }
+  .rows .for { color: rgba(247,249,248,.7); }
+  .rows .ch { color: rgba(247,249,248,.85); font-size: 13px; }
+  .rows .go { display: inline-flex; gap: 8px; color: #fff; font-weight: 600; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 2px; }
+  .rows .go .arr { transition: transform 300ms var(--ease); }
+  .rows .go:hover .arr { transform: translateX(4px); }
+  .reg-cta { margin-top: clamp(40px, 5vw, 64px); display: flex; justify-content: space-between; align-items: center; gap: var(--s6); flex-wrap: wrap; padding-top: var(--s6); border-top: 1px solid rgba(255,255,255,.22); }
+  .reg-cta h3 { font-weight: 400; font-size: var(--text-xl); letter-spacing: -.02em; }
+  .reg-cta p { margin-top: 6px; font-size: var(--text-sm); }
+
+  /* ── 반응형 ── */
+  @media (max-width: 1100px) {
+    .panel { width: 100%; }
+    .hero-mark { right: 6vw; }
+  }
+  @media (max-width: 900px) {
+    .grid-2, .film-grid, .co-body { grid-template-columns: 1fr; }
+    .hero-inner { grid-template-columns: 1fr; padding-bottom: 96px; }
+    .hero-mark { top: 18svh; width: 26vw; }
+    .layers { grid-template-columns: 1fr; }
+    .co summary { grid-template-columns: 40px 1fr 20px; }
+    .co .field { grid-column: 2; }
+    .co-body { padding-left: 0; }
+    .rows li { grid-template-columns: 1fr 1fr; }
+    .rows .rows-head { display: none; }
+    .rows .for { grid-column: 1 / -1; }
+  }
   @media (max-width: 640px) {
-    .route thead { display: none; }
-    .route tr { display: block; padding: var(--s3) 0; border-bottom: 1px solid rgba(247, 249, 248, 0.25); }
-    .route td { display: block; padding: 2px 0; border: 0; width: auto; }
-    .route .ch { margin-top: var(--s2); }
+    .co-main dl { grid-template-columns: 1fr; }
+    .rows li { grid-template-columns: 1fr; }
+    .statcol .stat .n { font-size: 2.6rem; }
   }
 </style>
+
+<script>
+  // ── 따라오는 DP 아웃라인 ──
+  // 쉬는 자리: 뷰포트 오른쪽 8.5vw, 세로 가운데(히어로의 .hero-mark와 같은 공식 → 첫 화면에서는 둘이 정확히 겹친다).
+  // 타깃([data-dp-target])의 중심이 쉬는 자리의 중심 ±R 안에 들면 진행도 p에 따라 그 자리·크기로 끌려가고, p>0.965면 맞물림.
+  const ASPECT = 1.1684;
+  const ghost = document.querySelector<HTMLElement>('.dp-ghost');
+  const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-dp-target]'));
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wide = () => window.innerWidth >= 1000;
+  if (ghost && targets.length) {
+    const rest = { x: 0, y: 0, w: 150 };
+    const layout = () => {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      rest.w = Math.min(170, Math.max(120, vw * 0.105));
+      rest.x = vw - rest.w - vw * 0.085;
+      rest.y = vh / 2 - rest.w / ASPECT / 2;
+      document.documentElement.style.setProperty('--gw', rest.w + 'px');
+    };
+    let raf = 0; let locked: HTMLElement | null = null;
+    const frame = () => {
+      raf = 0;
+      if (reduced || !wide()) { ghost.classList.add('is-off'); document.documentElement.classList.add('no-ghost'); return; }
+      ghost.classList.remove('is-off'); document.documentElement.classList.remove('no-ghost');
+      const vh = window.innerHeight; const R = Math.max(240, vh * 0.34);
+      const rc = rest.y + rest.w / ASPECT / 2;
+      let best: { el: HTMLElement; r: DOMRect } | null = null; let bp = 0;
+      const maxScroll = document.documentElement.scrollHeight - vh;
+      for (const el of targets) {
+        const r = el.getBoundingClientRect(); if (r.width < 8) continue;
+        let p = Math.max(0, 1 - Math.abs(r.top + r.height / 2 - rc) / R);
+        if (el.hasAttribute('data-dp-keep')) p = Math.max(p, Math.max(0, 1 - (maxScroll - window.scrollY) / Math.max(320, vh * 0.55)));
+        if (p > bp) { bp = p; best = { el, r }; }
+      }
+      const pe = bp * bp * (3 - 2 * bp);
+      let x = rest.x, y = rest.y, w = rest.w;
+      if (best) { x += (best.r.left - rest.x) * pe; y += (best.r.top - rest.y) * pe; w += (best.r.width - rest.w) * pe; }
+      ghost.style.width = w + 'px';
+      ghost.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      const isLocked = bp > 0.965 && best !== null;
+      const next = isLocked ? best!.el : null;
+      if (next !== locked) { locked?.classList.remove('is-locked'); next?.classList.add('is-locked'); locked = next; }
+      // 맞물리면 아웃라인은 숨긴다. 단 data-dp-keep 타깃(푸터 모자이크)에서는 겹친 채로 둔다.
+      ghost.classList.toggle('is-hidden', isLocked && !best!.el.hasAttribute('data-dp-keep'));
+    };
+    const request = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    layout(); frame();
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', () => { layout(); request(); });
+    // 아코디언이 열리고 닫히면 타깃 위치가 바뀐다
+    document.querySelectorAll('details').forEach((d) => d.addEventListener('toggle', () => setTimeout(request, 450)));
+    if (document.fonts) document.fonts.ready.then(request);
+    window.addEventListener('load', request);
+  }
+
+  // ── 섹션 인덱스: 뷰포트 중간선을 지난 마지막 섹션이 현재 ──
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.side-index a[data-index]'));
+  const secs = links.map((a) => document.getElementById(a.dataset.index!)).filter(Boolean) as HTMLElement[];
+  if (links.length && secs.length) {
+    let raf2 = 0;
+    const update = () => {
+      raf2 = 0; const mid = window.innerHeight * 0.5; let cur = -1;
+      secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= mid) cur = i; });
+      links.forEach((a, i) => a.classList.toggle('is-current', i === cur));
+    };
+    window.addEventListener('scroll', () => { if (!raf2) raf2 = requestAnimationFrame(update); }, { passive: true });
+    update();
+  }
+</script>

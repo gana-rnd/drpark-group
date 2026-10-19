@@ -1,0 +1,17 @@
+---
+// DP 마크 — 사용자가 고른 모노그램을 트레이스한 패스(src/data/dp-path.json)를 그대로 쓴다. 형태 수정 없음.
+// fill 모드(채움) 또는 outline 모드(선만). 선은 non-scaling-stroke라 화면 픽셀 기준 두께.
+// 부모가 넘긴 scoped 속성(data-astro-cid-*)을 svg에 그대로 얹어야 부모의 스코프 스타일(.brand-mark, .dp-fill 등)이 적용된다.
+import dp from '../data/dp-path.json';
+interface Props { class?: string; outline?: boolean; fill?: string; stroke?: string; strokeWidth?: number; title?: string; [key: string]: unknown }
+const { class: cls, outline = false, fill = 'currentColor', stroke = 'currentColor', strokeWidth = 1.5, title, ...rest } = Astro.props;
+const tf = `scale(${dp.scale}) translate(${dp.tx} ${dp.ty})`;
+---
+<svg {...rest} class={cls} viewBox={`0 0 ${dp.viewW} ${dp.viewH}`} xmlns="http://www.w3.org/2000/svg" role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'}>
+  {title && <title>{title}</title>}
+  <g transform={tf}>
+    {outline
+      ? <path d={dp.d} fill="none" stroke={stroke} stroke-width={strokeWidth} stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+      : <path d={dp.d} fill={fill} />}
+  </g>
+</svg>
