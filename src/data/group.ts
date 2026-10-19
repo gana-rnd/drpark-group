@@ -31,7 +31,7 @@ export type Company = {
 };
 
 export const companies: Company[] = [
-  { id: 'ganarnd', name: 'GANA R&D', url: 'https://ganarnd-rebranding.vercel.app', host: 'ganarnd.co.kr', contactUrl: 'https://ganarnd-rebranding.vercel.app/contact/', tel: '+82-31-733-0242', onSite: true },
+  { id: 'ganarnd', name: 'GANA R&D', url: 'https://ganarnd.com', host: 'ganarnd.com', contactUrl: 'https://ganarnd.com/contact/', tel: '+82-31-733-0242', onSite: true },
   { id: 'ganacosmetic', name: 'GANA Cosmetic', url: 'https://gana-cosmetics.com', host: 'gana-cosmetics.com', contactUrl: 'https://gana-cosmetics.com', email: 'contact@gana-cosmetics.com', onSite: true },
   { id: 'drparkcdmo', name: 'Dr. Park CDMO', url: 'https://drpark-cdmo.com', host: 'drpark-cdmo.com', contactUrl: 'https://drpark-cdmo.com/pc/contact/contact01.php', tel: '+82-31-734-0077', onSite: true },
   { id: 'drparkpharma', name: 'Dr. Park Pharmaceutical', url: 'https://www.drpgt.com', host: 'drpgt.com', contactUrl: 'https://www.drpgt.com', onSite: false },
@@ -41,7 +41,7 @@ export const companies: Company[] = [
 export const byId = Object.fromEntries(companies.map((c) => [c.id, c])) as Record<CompanyId, Company>;
 
 /** GANA R&D 등재 자료실 — CTA 링크 */
-export const registrationsUrl = 'https://ganarnd-rebranding.vercel.app/market-access/';
+export const registrationsUrl = 'https://ganarnd.com/market-access/';
 
 /** 시설 홍보영상 공개 URL — 미정이면 빈 문자열(홈의 "영상 보기"가 링크 없는 라벨로 렌더됨). 완성본: OneDrive 바탕 화면 "닥터박 완성본.mp4" */
 export const filmUrl = '';
