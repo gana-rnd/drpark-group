@@ -10,6 +10,8 @@ html, body { overflow-x: clip; }
  * 홈(body.has-hero)에서만. 패널(.panel)이 그 위에 떠 있고, 한쪽 띠(--strip)로 배경이 계속 보인다. 이미지 밖 영역은 --bg-deep. */
 body.has-hero { background: var(--bg-deep); }
 body {
+  max-width: var(--site-max);
+  margin-inline: auto;
   font-family: var(--font);
   font-size: var(--text-base);
   line-height: var(--leading-body);
@@ -155,10 +157,11 @@ table { border-collapse: collapse; width: 100%; }
 .status.neutral { color: var(--ink-2); }
 .sep { color: var(--ink-3); }
 
-/* 한국어 — 단어 중간 줄바꿈 방지, 자간 완화, 히어로 제목 폭(한글은 ch 단위로 좁게 잡힘) */
+/* 한국어(Pretendard) — 단어 중간 줄바꿈 방지. 한글은 Manrope보다 글자 상자가 꽉 차서 자간을 덜 좁히고 행간을 조금 연다. 히어로 제목 폭(한글은 ch 단위로 좁게 잡힘) */
 html[lang="ko"] body { word-break: keep-all; }
-html[lang="ko"] h1, html[lang="ko"] h2, html[lang="ko"] .hero-title { letter-spacing: -0.01em; }
-html[lang="ko"] .hero-title { max-width: 18ch; }
+html[lang="ko"] h1, html[lang="ko"] h2, html[lang="ko"] h3 { letter-spacing: -0.02em; }
+html[lang="ko"] .hero-title { letter-spacing: -0.03em; line-height: 1.06; max-width: 18ch; }
+html[lang="ko"] p, html[lang="ko"] li, html[lang="ko"] dd { letter-spacing: -0.005em; }
 
 /* 콜아웃 */
 .callout { background: var(--paper-2); padding: var(--s5) var(--s6); border-radius: 2px; font-size: var(--text-sm); color: var(--ink-2); }

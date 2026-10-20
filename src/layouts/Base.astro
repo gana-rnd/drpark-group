@@ -14,8 +14,9 @@ const currentPath = stripLangFromPath(Astro.url.pathname);
 const siteBase = Astro.site?.toString().replace(/\/$/, '') ?? '';
 const canonicalUrl = `${siteBase}${localizePath(currentPath, lang)}`;
 const ogLocale: Record<string, string> = { en: 'en_US', ko: 'ko_KR' };
-// 라틴 글꼴은 셀프호스팅(src/styles/fonts.css → public/fonts). 한국어 페이지만 Noto Sans KR을 외부에서 받는다.
-const notoHref = lang === 'ko' ? 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap' : '';
+// 라틴 글꼴은 셀프호스팅(src/styles/fonts.css → public/fonts; Manrope는 가변 폰트 한 파일이 300~700을 모두 낸다).
+// 한글 페이지만 Pretendard Variable(동적 서브셋, jsDelivr)을 받는다 — Manrope와 같은 기하 산세리프 계열이라 굵기·회색도가 맞는다. 2026-10-20 Noto Sans KR에서 교체(사용자 지시).
+const koFontHref = lang === 'ko' ? 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css' : '';
 // 조직 스키마 — 지분 관계를 함의하는 subOrganization은 쓰지 않는다(6사 통합자료 §3-6). 세 회사는 sameAs 링크로만.
 const orgSchema = JSON.stringify({
   '@context': 'https://schema.org',
@@ -51,8 +52,8 @@ const orgSchema = JSON.stringify({
     ))}
     <link rel="alternate" hreflang="x-default" href={`${siteBase}${currentPath}`} />
     <link rel="preload" href="/fonts/manrope-400-latin.woff2" as="font" type="font/woff2" crossorigin />
-    {notoHref && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
-    {notoHref && <link href={notoHref} rel="stylesheet" />}
+    {koFontHref && <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />}
+    {koFontHref && <link href={koFontHref} rel="stylesheet" />}
   </head>
   <body class={hasHero ? 'has-hero' : undefined}>
     <a href="#main" class="skip">{t.common.skip}</a>

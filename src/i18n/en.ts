@@ -11,13 +11,13 @@ export const en = {
   },
   common: {
     founder: 'Dr. Yongho Park',
-    scroll: 'Scroll',
     skip: 'Skip to content',
     visit: 'Visit {name}',
     contactCo: 'Contact {name}',
     tel: 'Tel',
     email: 'Email',
     open: 'Open',
+    close: 'Close',
     site: 'Site',
   },
   meta: {

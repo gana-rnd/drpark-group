@@ -1,9 +1,9 @@
 ---
-// 그룹 홈 — RRE Ventures 원페이지 구성(통배경 위에 떠 있는 패널, 좌우 교대) + GC 그룹의 "따라오는 로고" 연출.
+// 그룹 홈 — RRE Ventures 원페이지 구성(통배경 위에 떠 있는 패널, 좌우 교대).
 //   · 고정 배경(복도 스틸, 어둡게) + 그레인 → 그 위에 페이퍼/글라스 패널이 좌우 띠를 번갈아 남기며 뜬다
-//   · dp-ghost: 화면 오른쪽 가운데에 머무는 DP 아웃라인. 스크롤 중 [data-dp-target]이 가운데로 오면 그 자리·크기로 끌려가 맞물리고,
-//     맞물리는 순간 타깃의 채운 마크가 드러난다(히어로 → 회사 패널 → 푸터 모자이크에서 겹친 채 끝난다)
-//   · 왼쪽 고정 섹션 인덱스(01~05), 현재 섹션 강조
+//   · 2026-10-20: 스크롤 큐 · 따라오는 DP 아웃라인(고스트) · 좌측 섹션 인덱스 제거(사용자 지시). 현재 위치는 헤더 내비의 밑줄로 표시.
+//   · 회사 아코디언은 JS로 높이를 애니메이션(스륵), 열린 항목은 옅은 푸른 회색 틴트
+//   · 영상은 팝업(<dialog>): filmUrl이 유튜브면 iframe, mp4/webm 파일 URL이면 <video>. 비어 있으면 썸네일은 클릭 불가 + "링크 준비 중" 라벨.
 // 사실·문구는 i18n, 회사·숫자는 data/group.ts. 창업자 사진 없음(회장 뜻), 인용문 없음, 용량 수치 없음.
 import DpMark from './DpMark.astro';
 import { companies, byId, layers, stats, registrationsUrl, filmUrl } from '../data/group';
@@ -14,35 +14,28 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const items = t.companies.items as Record<string, CompanyStrings>;
 const cs = (id: string) => items[id];
-const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.nav.makes], ['companies', t.nav.companies], ['film', t.nav.film], ['contact', t.nav.contact]];
+// 유튜브 ID — watch?v= · youtu.be/ · /embed/ · /shorts/ · /live/ 형식 모두 허용. 유튜브가 아니면 빈 문자열(링크로만 동작).
+const ytMatch = filmUrl.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+const ytId = ytMatch ? ytMatch[1] : '';
+const embedSrc = ytId ? `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1` : '';
+// 유튜브가 아니라 mp4/webm 파일 URL이면 <video>로 재생(자체 호스팅·CDN)
+const isVideoFile = /\.(mp4|webm|mov)(\?|#|$)/i.test(filmUrl);
+const hasPopup = Boolean(embedSrc || isVideoFile);
 ---
 
-<!-- 통배경: 고정 사진 + 그레인 + 아래쪽 비네트 -->
+<!-- 통배경: 고정 사진 + 그레인 + 아래쪽 비네트 (사이트 최대폭 안에서만) -->
 <div class="bg" aria-hidden="true">
   <div class="bg-img"></div>
   <div class="bg-grain"></div>
 </div>
 
-<!-- 따라오는 DP 아웃라인 -->
-<div class="dp-ghost" aria-hidden="true"><DpMark outline stroke="#ffffff" strokeWidth={1.4} /></div>
-
-<!-- 섹션 인덱스 -->
-<nav class="side-index" aria-label="Sections">
-  <ol>
-    {sections.map(([id, label], i) => (
-      <li><a href={'#' + id} data-index={id}><span class="n">{String(i + 1).padStart(2, '0')}</span><span class="l">{label}</span></a></li>
-    ))}
-  </ol>
-</nav>
-
-<!-- 히어로: 바이오리액터 홀 전폭 사진. 헤드라인 좌하 · 소개 우상 · DP 마크가 오른쪽 가운데(= 고스트의 시작 자리) -->
+<!-- 히어로: 바이오리액터 홀 전폭 사진. 헤드라인 좌하 · 소개 우하 -->
 <section class="hero" id="top">
   <picture class="hero-photo">
     <source media="(max-width: 700px)" srcset="/images/hero-m.webp" />
     <img src="/images/hero.webp" width="2400" height="1350" alt="" fetchpriority="high" decoding="async" />
   </picture>
   <div class="hero-shade" aria-hidden="true"></div>
-  <div class="hero-mark dp-target" data-dp-target style="--dp-base:0.14"><DpMark class="dp-fill" fill="#ffffff" /></div>
   <div class="hero-inner">
     <div class="hero-copy">
       <p class="eyebrow light hero-fade d1">{t.hero.eyebrow}</p>
@@ -56,7 +49,6 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
       <a class="bracket light" href="#companies">{t.hero.cta}<span class="arr">→</span></a>
     </div>
   </div>
-  <div class="scroll-cue hero-fade d2" aria-hidden="true"><span>{t.common.scroll}</span><i></i></div>
 </section>
 
 <!-- 01 창업자 — 페이퍼 패널(왼쪽 띠). 좌 문단+연혁 / 우 숫자 열 -->
@@ -110,11 +102,11 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   <p class="note">{t.makes.note}</p>
 </section>
 
-<!-- 03 회사 — 페이퍼 패널(왼쪽 띠). 제목 옆 DP 마크(고스트가 여기 맞물림), 아코디언 5 -->
+<!-- 03 회사 — 페이퍼 패널(왼쪽 띠). 제목 옆 DP 마크, 아코디언 5(JS 슬라이드, 한 번에 하나) -->
 <section class="panel paper right" id="companies" data-reveal>
   <div class="grid-2 head">
     <div class="with-mark">
-      <div class="co-mark dp-target" data-dp-target style="--dp-base:0.1"><DpMark class="dp-fill" fill="currentColor" /></div>
+      <div class="co-mark"><DpMark class="dp-fill" fill="currentColor" /></div>
       <div>
         <p class="eyebrow"><span class="no">03</span>{t.companies.eyebrow}</p>
         <h2>{t.companies.title}</h2>
@@ -124,26 +116,32 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   </div>
   <div class="acc">
     {companies.map((c, i) => (
-      <details class="co" name="company" open={i === 0}>
+      <details class:list={['co', i === 0 && 'is-open']} open={i === 0}>
         <summary>
           <span class="idx mono">{String(i + 1).padStart(2, '0')}</span>
-          <span class="name">{c.name}</span>
+          <span class="name">
+            {c.id === 'ganarnd'
+              ? <img class="name-logo" src="/images/brand/gana-rnd-logo.png" width="720" height="206" alt={c.name} loading="lazy" decoding="async" />
+              : c.name}
+          </span>
           <span class="field">{cs(c.id).field}</span>
           <span class="plus" aria-hidden="true"></span>
         </summary>
         <div class="co-body">
-          <div class="co-main">
-            <p class="tag">{cs(c.id).tagline}</p>
-            <p>{cs(c.id).makes}</p>
-            <dl>
-              <dt>{t.companies.servesLabel}</dt><dd>{cs(c.id).serves}</dd>
-              <dt>{t.companies.statusLabel}</dt><dd>{cs(c.id).status}</dd>
-            </dl>
-          </div>
-          <div class="co-side">
-            <p class="h">{t.companies.credentialsLabel}</p>
-            <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
-            <a class="bracket" href={c.url} rel="noopener">{tpl(t.common.visit, { name: c.name })}<span class="arr">→</span></a>
+          <div class="co-inner">
+            <div class="co-main">
+              <p class="tag">{cs(c.id).tagline}</p>
+              <p>{cs(c.id).makes}</p>
+              <dl>
+                <dt>{t.companies.servesLabel}</dt><dd>{cs(c.id).serves}</dd>
+                <dt>{t.companies.statusLabel}</dt><dd>{cs(c.id).status}</dd>
+              </dl>
+            </div>
+            <div class="co-side">
+              <p class="h">{t.companies.credentialsLabel}</p>
+              <ul class="creds">{cs(c.id).credentials.map((x) => <li>{x}</li>)}</ul>
+              <a class="bracket" href={c.url} rel="noopener">{tpl(t.common.visit, { name: c.name })}<span class="arr">→</span></a>
+            </div>
           </div>
         </div>
       </details>
@@ -151,7 +149,7 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   </div>
 </section>
 
-<!-- 04 영상 — 패널 없이 배경 위. 좌 문구 / 우 썸네일 -->
+<!-- 04 영상 — 패널 없이 배경 위. 좌 문구 / 우 썸네일. 클릭하면 유튜브 팝업 -->
 <section class="film" id="film" data-reveal>
   <div class="film-grid">
     <div class="copy">
@@ -159,20 +157,38 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
       <h2>{t.film.title}</h2>
       <p>{t.film.body}</p>
       {filmUrl
-        ? <a class="bracket light" href={filmUrl} rel="noopener">{t.film.watch}<span class="arr">→</span></a>
+        ? <a class="bracket light" href={filmUrl} target="_blank" rel="noopener" data-film>{t.film.watch}<span class="arr">→</span></a>
         : <span class="bracket light pending" title={t.film.pending}>{t.film.watch}</span>}
     </div>
     <figure class="thumb">
-      <div class="frame">
-        <img src="/images/film.webp" width="1600" height="900" alt={t.film.alt} loading="lazy" decoding="async" />
-        <span class="play" aria-hidden="true"></span>
-      </div>
+      {filmUrl
+        ? <a class="frame" href={filmUrl} target="_blank" rel="noopener" aria-label={t.film.watch} data-film>
+            <img src="/images/film.webp" width="1600" height="900" alt={t.film.alt} loading="lazy" decoding="async" />
+            <span class="play" aria-hidden="true"></span>
+          </a>
+        : <div class="frame is-pending" title={t.film.pending}>
+            <img src="/images/film.webp" width="1600" height="900" alt={t.film.alt} loading="lazy" decoding="async" />
+          </div>}
       <figcaption>{t.film.caption}</figcaption>
     </figure>
   </div>
 </section>
 
-<!-- 05 문의 — 글라스 패널(오른쪽 띠). 회사별 채널 행 + 등재 CTA -->
+{hasPopup && (
+  <dialog class="film-modal" data-src={embedSrc} aria-label={t.film.title}>
+    <button class="fm-close" type="button" aria-label={t.common.close}>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M2 2l14 14M16 2L2 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>{t.common.close}</span>
+    </button>
+    <div class="fm-frame">
+      {isVideoFile
+        ? <video src={filmUrl} controls playsinline preload="metadata" poster="/images/film.webp"></video>
+        : <iframe title={t.film.title} src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>}
+    </div>
+  </dialog>
+)}
+
+<!-- 05 문의 — 글라스 패널(오른쪽 띠). 회사별 채널 행(subgrid로 열 정렬) + 등재 CTA(새 탭) -->
 <section class="panel glass left" id="contact" data-reveal>
   <div class="grid-2 head">
     <div>
@@ -185,7 +201,7 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
     <li class="rows-head" aria-hidden="true"><span>{t.contact.thCompany}</span><span>{t.contact.thFor}</span><span>{t.contact.thChannel}</span><span></span></li>
     {companies.map((c) => (
       <li>
-        <span class="co">{c.name}</span>
+        <span class="rc">{c.name}</span>
         <span class="for">{cs(c.id).contactLabel}</span>
         <span class="ch mono">{c.tel ?? c.email ?? c.host}</span>
         <a class="go" href={c.contactUrl} rel="noopener">{tpl(t.common.contactCo, { name: c.name })}<span class="arr">→</span></a>
@@ -194,37 +210,16 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   </ul>
   <div class="reg-cta">
     <div><h3>{t.cta.title}</h3><p>{t.cta.body}</p></div>
-    <a class="bracket" href={registrationsUrl} rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
+    <a class="bracket" href={registrationsUrl} target="_blank" rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
   </div>
 </section>
 
 <style>
-  /* ── 배경 ── */
-  .bg { position: fixed; inset: 0; z-index: -1; background: var(--bg-deep); }
+  /* ── 배경 (사이트 최대폭 1920 안에 맞춰 가운데) ── */
+  .bg { position: fixed; inset: 0; max-width: var(--site-max); margin-inline: auto; z-index: -1; background: var(--bg-deep); }
   .bg-img { position: absolute; inset: 0; background: url('/images/bg.webp') center / cover no-repeat; opacity: .9; }
   .bg-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,12,18,.2), rgba(8,12,18,.55) 60%, rgba(8,12,18,.85)); }
   .bg-grain { position: absolute; inset: 0; opacity: .07; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-  /* ── 고스트 ── */
-  .dp-ghost { position: fixed; left: 0; top: 0; width: 150px; z-index: 40; pointer-events: none; mix-blend-mode: difference; opacity: .72; will-change: transform, opacity; transition: opacity 320ms var(--ease); }
-  .dp-ghost svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1px rgba(0,0,0,.25)); }
-  .dp-ghost.is-hidden { opacity: 0; }
-  html.no-ghost .dp-ghost, .dp-ghost.is-off { display: none; }
-  /* 타깃: 채운 마크는 평소 옅게(--dp-base), 맞물리면 또렷하게 */
-  .dp-target { line-height: 0; }
-  .dp-target .dp-fill { display: block; width: 100%; height: auto; opacity: var(--dp-base, 0); transition: opacity 420ms var(--ease), filter 420ms var(--ease); }
-  .dp-target.is-locked .dp-fill { opacity: 1; }
-  html.no-ghost .dp-target .dp-fill { opacity: 1; }
-
-  /* ── 섹션 인덱스 ── */
-  .side-index { position: fixed; left: 24px; top: 50%; transform: translateY(-50%); z-index: 30; mix-blend-mode: difference; color: #fff; }
-  .side-index ol { list-style: none; display: grid; gap: 14px; }
-  .side-index a { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; transition: opacity 240ms var(--ease); border-left: 1px solid rgba(255,255,255,.45); padding-left: 10px; }
-  .side-index .n { font-family: var(--font-mono); font-size: 11px; }
-  .side-index .l { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width 360ms var(--ease), opacity 240ms var(--ease); opacity: 0; }
-  .side-index a.is-current { opacity: 1; border-left-width: 2px; }
-  .side-index a:hover .l { max-width: 180px; opacity: 1; }
-  @media (max-width: 1180px) { .side-index { display: none; } }
 
   /* ── 공통 ── */
   .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: var(--s4); color: var(--ink-3); font-size: 11.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
@@ -273,12 +268,6 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   .hero-title .hero-line:first-child > span::first-letter { color: var(--accent); }
   .hero-intro { padding-bottom: .5em; }
   .hero-intro p { max-width: 42ch; font-size: var(--text-lg); line-height: 1.6; color: rgba(255,255,255,.8); margin-bottom: var(--s6); }
-  .hero-mark { position: absolute; right: 8.5vw; top: calc(50svh - (var(--gw) / 1.1684) / 2); width: var(--gw); z-index: 1; color: #fff; filter: drop-shadow(0 20px 40px rgba(0,0,0,.45)); }
-  .hero-mark .dp-fill { opacity: var(--dp-base); }
-  .scroll-cue { position: absolute; left: clamp(28px, 5.6vw, 80px); bottom: 28px; display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.6); z-index: 1; }
-  .scroll-cue i { display: block; width: 56px; height: 1px; background: rgba(255,255,255,.35); position: relative; overflow: hidden; }
-  .scroll-cue i::after { content: ''; position: absolute; left: -30%; width: 30%; height: 100%; background: #fff; animation: cue 2.4s var(--ease) infinite; }
-  @keyframes cue { to { left: 110%; } }
 
   /* ── 01 창업자 ── */
   .timeline { list-style: none; margin-top: var(--s7); border-top: 1px solid var(--ink); }
@@ -307,22 +296,28 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
 
   /* ── 03 회사 ── */
   .with-mark { display: grid; grid-template-columns: auto 1fr; gap: clamp(20px, 2.4vw, 36px); align-items: end; }
-  .co-mark { width: clamp(64px, 6vw, 92px); color: var(--ink); align-self: center; }
-  .acc { border-top: 1px solid var(--ink); }
-  .co { border-bottom: 1px solid var(--line-strong); }
-  .co summary { display: grid; grid-template-columns: 52px minmax(0, 1.1fr) minmax(0, 1fr) 28px; align-items: center; gap: var(--s4); padding: 22px 0; cursor: pointer; list-style: none; transition: padding-left 300ms var(--ease); }
-  .co summary::-webkit-details-marker { display: none; }
-  .co summary:hover { padding-left: 6px; }
-  .co .idx { color: var(--accent); font-size: 12px; }
-  .co .name { font-size: clamp(1.25rem, 1.9vw, 1.7rem); font-weight: 400; letter-spacing: -.02em; color: var(--ink); }
-  .co .field { font-size: var(--text-sm); color: var(--ink-3); }
-  .co .plus { position: relative; width: 16px; height: 16px; justify-self: end; }
-  .co .plus::before, .co .plus::after { content: ''; position: absolute; background: var(--ink); left: 50%; top: 50%; transition: transform 300ms var(--ease); }
-  .co .plus::before { width: 16px; height: 1px; transform: translate(-50%, -50%); }
-  .co .plus::after { width: 1px; height: 16px; transform: translate(-50%, -50%); }
-  .co[open] .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
-  .co-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(32px, 5vw, 80px); padding: 4px 0 36px 52px; animation: open 420ms var(--ease) both; }
-  @keyframes open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .co-mark { width: clamp(64px, 6vw, 92px); color: var(--ink); align-self: center; line-height: 0; }
+  .co-mark .dp-fill { display: block; width: 100%; height: auto; }
+  .acc { --tint: rgba(14, 33, 57, .055); --bleed: 22px; border-top: 1px solid var(--ink); }
+  .acc .co { border-bottom: 1px solid var(--line-strong); transition: background-color 460ms var(--ease), box-shadow 460ms var(--ease); }
+  /* 열린 항목: 옅은 푸른 회색 틴트. 좌우로 --bleed만큼 번지되 선(border)은 제목 폭에 그대로 */
+  .acc .co.is-open, html:not(.js) .acc .co[open] { background-color: var(--tint); box-shadow: var(--bleed) 0 0 var(--tint), calc(-1 * var(--bleed)) 0 0 var(--tint); }
+  .acc .co summary { display: grid; grid-template-columns: 52px minmax(0, 1.1fr) minmax(0, 1fr) 28px; align-items: center; gap: var(--s4); padding: 22px 0; cursor: pointer; list-style: none; transition: padding-left 300ms var(--ease); }
+  .acc .co summary::-webkit-details-marker { display: none; }
+  .acc .co summary:hover { padding-left: 6px; }
+  .acc .co .idx { color: var(--accent); font-size: 12px; }
+  .acc .co .name { font-size: clamp(1.25rem, 1.9vw, 1.7rem); font-weight: 400; letter-spacing: -.02em; color: var(--ink); line-height: 1.2; }
+  /* GANA R&D는 글자 대신 공식 워드마크(투명 PNG). 글자 행과 시각적 높이를 맞춘다 */
+  .acc .co .name-logo { display: block; height: clamp(30px, 2.5vw, 38px); width: auto; margin-left: -5px; }
+  .acc .co .field { font-size: var(--text-sm); color: var(--ink-3); }
+  .acc .co .plus { position: relative; width: 16px; height: 16px; justify-self: end; }
+  .acc .co .plus::before, .acc .co .plus::after { content: ''; position: absolute; background: var(--ink); left: 50%; top: 50%; transition: transform 320ms var(--ease); }
+  .acc .co .plus::before { width: 16px; height: 1px; transform: translate(-50%, -50%); }
+  .acc .co .plus::after { width: 1px; height: 16px; transform: translate(-50%, -50%); }
+  .acc .co.is-open .plus::after, html:not(.js) .acc .co[open] .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+  /* 본문: 바깥(.co-body)은 높이 애니메이션용 래퍼(패딩 없음), 안쪽(.co-inner)이 그리드와 패딩 */
+  .co-body { will-change: height; }
+  .co-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(32px, 5vw, 80px); padding: 4px 0 36px 52px; }
   .co-main .tag { font-size: var(--text-lg); color: var(--ink); max-width: 36ch; }
   .co-main p + p { margin-top: var(--s3); }
   .co-main p { font-size: var(--text-sm); color: var(--ink-2); max-width: 56ch; }
@@ -339,21 +334,33 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   .film h2 { color: #fff; }
   .film .copy p { color: rgba(255,255,255,.75); margin: var(--s4) 0 var(--s6); max-width: 40ch; }
   .thumb { margin: 0; }
-  .thumb .frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--navy); box-shadow: 0 50px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.1); }
+  .thumb .frame { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--navy); box-shadow: 0 50px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.1); }
+  .thumb a.frame { cursor: pointer; }
   .thumb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); transition: transform 1.2s var(--ease-out-expo, var(--ease)); }
-  .thumb:hover img { transform: scale(1.06); }
-  .play { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(255,255,255,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(14,33,57,.35); }
+  .thumb a.frame:hover img { transform: scale(1.06); }
+  .play { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(255,255,255,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(14,33,57,.35); transition: background 240ms var(--ease), transform 240ms var(--ease); }
   .play::after { content: ''; position: absolute; left: 53%; top: 50%; transform: translate(-50%, -50%); border-left: 14px solid #fff; border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+  .thumb a.frame:hover .play { background: rgba(14,33,57,.6); transform: translate(-50%, -50%) scale(1.06); }
   .thumb figcaption { margin-top: 12px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.55); }
 
-  /* ── 05 문의 ── */
-  .rows { list-style: none; border-top: 1px solid rgba(255,255,255,.3); }
-  .rows li { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.3fr) minmax(160px, .8fr) auto; gap: var(--s4); align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,.12); font-size: var(--text-sm); }
+  /* 유튜브 팝업 */
+  .film-modal { border: 0; padding: 0; margin: auto; width: min(1200px, 92vw); max-width: none; max-height: none; background: transparent; color: #fff; overflow: visible; }
+  .film-modal::backdrop { background: rgba(8, 12, 18, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .film-modal[open] { animation: fm-in 360ms var(--ease-out-expo, var(--ease)) both; }
+  @keyframes fm-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+  .fm-frame { position: relative; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 60px 140px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08); }
+  .fm-frame iframe, .fm-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #000; }
+  .fm-close { position: absolute; right: 0; bottom: calc(100% + 14px); display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 14px 0 12px; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; font: inherit; font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: background 200ms var(--ease), color 200ms var(--ease); }
+  .fm-close:hover { background: #fff; color: var(--navy); }
+
+  /* ── 05 문의 — ul이 그리드, li는 subgrid라 모든 행·헤더의 열이 같은 선에 맞는다 ── */
+  .rows { list-style: none; border-top: 1px solid rgba(255,255,255,.3); display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.3fr) minmax(170px, .8fr) max-content; column-gap: var(--s5); }
+  .rows li { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.3fr) minmax(170px, .8fr) max-content; grid-template-columns: subgrid; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,.12); font-size: var(--text-sm); }
   .rows .rows-head { padding: 10px 0; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); }
-  .rows .co { color: #fff; font-size: var(--text-base); }
+  .rows .rc { color: #fff; font-size: var(--text-base); }
   .rows .for { color: rgba(247,249,248,.7); }
   .rows .ch { color: rgba(247,249,248,.85); font-size: 13px; }
-  .rows .go { display: inline-flex; gap: 8px; color: #fff; font-weight: 600; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 2px; }
+  .rows .go { display: inline-flex; gap: 8px; justify-self: end; color: #fff; font-weight: 600; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 2px; }
   .rows .go .arr { transition: transform 300ms var(--ease); }
   .rows .go:hover .arr { transform: translateX(4px); }
   .reg-cta { margin-top: clamp(40px, 5vw, 64px); display: flex; justify-content: space-between; align-items: center; gap: var(--s6); flex-wrap: wrap; padding-top: var(--s6); border-top: 1px solid rgba(255,255,255,.22); }
@@ -363,92 +370,115 @@ const sections: [string, string][] = [['founder', t.nav.founder], ['makes', t.na
   /* ── 반응형 ── */
   @media (max-width: 1100px) {
     .panel { width: 100%; }
-    .hero-mark { right: 6vw; }
   }
   @media (max-width: 900px) {
-    .grid-2, .film-grid, .co-body { grid-template-columns: 1fr; }
+    .grid-2, .film-grid, .co-inner { grid-template-columns: 1fr; }
     .hero-inner { grid-template-columns: 1fr; padding-bottom: 96px; }
-    .hero-mark { top: 18svh; width: 26vw; }
     .layers { grid-template-columns: 1fr; }
-    .co summary { grid-template-columns: 40px 1fr 20px; }
-    .co .field { grid-column: 2; }
-    .co-body { padding-left: 0; }
-    .rows li { grid-template-columns: 1fr 1fr; }
+    .acc { --bleed: 14px; }
+    .acc .co summary { grid-template-columns: 40px 1fr 20px; }
+    .acc .co .field { grid-column: 2; }
+    .co-inner { padding-left: 0; }
+    .rows { display: block; }
+    .rows li { grid-template-columns: 1fr 1fr; column-gap: var(--s4); }
     .rows .rows-head { display: none; }
     .rows .for { grid-column: 1 / -1; }
+    .rows .go { justify-self: start; }
   }
   @media (max-width: 640px) {
     .co-main dl { grid-template-columns: 1fr; }
     .rows li { grid-template-columns: 1fr; }
     .statcol .stat .n { font-size: 2.6rem; }
+    .fm-close span { display: none; }
+    .fm-close { padding: 0 11px; }
   }
 </style>
 
 <script>
-  // ── 따라오는 DP 아웃라인 ──
-  // 쉬는 자리: 뷰포트 오른쪽 8.5vw, 세로 가운데(히어로의 .hero-mark와 같은 공식 → 첫 화면에서는 둘이 정확히 겹친다).
-  // 타깃([data-dp-target])의 중심이 쉬는 자리의 중심 ±R 안에 들면 진행도 p에 따라 그 자리·크기로 끌려가고, p>0.965면 맞물림.
-  const ASPECT = 1.1684;
-  const ghost = document.querySelector<HTMLElement>('.dp-ghost');
-  const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-dp-target]'));
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const wide = () => window.innerWidth >= 1000;
-  if (ghost && targets.length) {
-    const rest = { x: 0, y: 0, w: 150 };
-    const layout = () => {
-      const vw = window.innerWidth, vh = window.innerHeight;
-      rest.w = Math.min(170, Math.max(120, vw * 0.105));
-      rest.x = vw - rest.w - vw * 0.085;
-      rest.y = vh / 2 - rest.w / ASPECT / 2;
-      document.documentElement.style.setProperty('--gw', rest.w + 'px');
-    };
-    let raf = 0; let locked: HTMLElement | null = null;
-    const frame = () => {
-      raf = 0;
-      if (reduced || !wide()) { ghost.classList.add('is-off'); document.documentElement.classList.add('no-ghost'); return; }
-      ghost.classList.remove('is-off'); document.documentElement.classList.remove('no-ghost');
-      const vh = window.innerHeight; const R = Math.max(240, vh * 0.34);
-      const rc = rest.y + rest.w / ASPECT / 2;
-      let best: { el: HTMLElement; r: DOMRect } | null = null; let bp = 0;
-      const maxScroll = document.documentElement.scrollHeight - vh;
-      for (const el of targets) {
-        const r = el.getBoundingClientRect(); if (r.width < 8) continue;
-        let p = Math.max(0, 1 - Math.abs(r.top + r.height / 2 - rc) / R);
-        if (el.hasAttribute('data-dp-keep')) p = Math.max(p, Math.max(0, 1 - (maxScroll - window.scrollY) / Math.max(320, vh * 0.55)));
-        if (p > bp) { bp = p; best = { el, r }; }
-      }
-      const pe = bp * bp * (3 - 2 * bp);
-      let x = rest.x, y = rest.y, w = rest.w;
-      if (best) { x += (best.r.left - rest.x) * pe; y += (best.r.top - rest.y) * pe; w += (best.r.width - rest.w) * pe; }
-      ghost.style.width = w + 'px';
-      ghost.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      const isLocked = bp > 0.965 && best !== null;
-      const next = isLocked ? best!.el : null;
-      if (next !== locked) { locked?.classList.remove('is-locked'); next?.classList.add('is-locked'); locked = next; }
-      // 맞물리면 아웃라인은 숨긴다. 단 data-dp-keep 타깃(푸터 모자이크)에서는 겹친 채로 둔다.
-      ghost.classList.toggle('is-hidden', isLocked && !best!.el.hasAttribute('data-dp-keep'));
-    };
-    const request = () => { if (!raf) raf = requestAnimationFrame(frame); };
-    layout(); frame();
-    window.addEventListener('scroll', request, { passive: true });
-    window.addEventListener('resize', () => { layout(); request(); });
-    // 아코디언이 열리고 닫히면 타깃 위치가 바뀐다
-    document.querySelectorAll('details').forEach((d) => d.addEventListener('toggle', () => setTimeout(request, 450)));
-    if (document.fonts) document.fonts.ready.then(request);
-    window.addEventListener('load', request);
+  const EXPO = 'cubic-bezier(0.23, 1, 0.32, 1)';
+
+  // ── 회사 아코디언: 높이를 직접 애니메이션(스륵), 한 번에 하나만 ──
+  // <details name>의 네이티브 배타 동작은 닫힘이 즉시라서 쓰지 않고 여기서 직접 닫는다.
+  const acc = Array.from(document.querySelectorAll<HTMLDetailsElement>('.acc details.co'));
+  const running = new WeakMap<HTMLDetailsElement, Animation>();
+  const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>(':scope > .co-body')!;
+  const settle = (d: HTMLDetailsElement, b: HTMLElement) => { b.style.overflow = ''; running.delete(d); };
+  const expand = (d: HTMLDetailsElement) => {
+    const b = bodyOf(d);
+    const prev = running.get(d);
+    const from = prev ? b.getBoundingClientRect().height : 0;
+    prev?.cancel();
+    d.classList.add('is-open');
+    d.open = true;
+    if (reduced) return;
+    const to = b.scrollHeight;
+    b.style.overflow = 'hidden';
+    const a = b.animate(
+      [{ height: `${from}px`, opacity: from > 0 ? 1 : 0 }, { height: `${to}px`, opacity: 1 }],
+      { duration: 560, easing: EXPO },
+    );
+    running.set(d, a);
+    a.onfinish = () => settle(d, b);
+  };
+  const collapse = (d: HTMLDetailsElement) => {
+    const b = bodyOf(d);
+    const prev = running.get(d);
+    const from = b.getBoundingClientRect().height;
+    prev?.cancel();
+    d.classList.remove('is-open');
+    if (reduced) { d.open = false; return; }
+    b.style.overflow = 'hidden';
+    const a = b.animate([{ height: `${from}px`, opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 420, easing: EXPO });
+    running.set(d, a);
+    a.onfinish = () => { d.open = false; settle(d, b); };
+  };
+  acc.forEach((d) => {
+    d.querySelector('summary')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (d.classList.contains('is-open')) { collapse(d); return; }
+      acc.forEach((o) => { if (o !== d && o.classList.contains('is-open')) collapse(o); });
+      expand(d);
+    });
+  });
+
+  // ── 영상: 유튜브 팝업 ──
+  const modal = document.querySelector<HTMLDialogElement>('.film-modal');
+  const iframe = modal?.querySelector('iframe') ?? null;
+  const video = modal?.querySelector('video') ?? null;
+  const embed = modal?.dataset.src ?? '';
+  if (modal && (video || (iframe && embed)) && typeof modal.showModal === 'function') {
+    document.querySelectorAll<HTMLElement>('[data-film]').forEach((el) => el.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.showModal();
+      if (video) { video.currentTime = 0; video.play().catch(() => {}); }
+      else if (iframe) iframe.src = `${embed}&autoplay=1`;
+    }));
+    modal.addEventListener('close', () => { if (video) video.pause(); if (iframe) iframe.src = ''; });
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+    modal.querySelector('.fm-close')?.addEventListener('click', () => modal.close());
   }
 
-  // ── 섹션 인덱스: 뷰포트 중간선을 지난 마지막 섹션이 현재 ──
-  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.side-index a[data-index]'));
-  const secs = links.map((a) => document.getElementById(a.dataset.index!)).filter(Boolean) as HTMLElement[];
-  if (links.length && secs.length) {
-    let raf2 = 0;
-    const update = () => {
-      raf2 = 0; const mid = window.innerHeight * 0.5; let cur = -1;
-      secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= mid) cur = i; });
-      links.forEach((a, i) => a.classList.toggle('is-current', i === cur));
+  // ── 헤더 내비 현재 위치: 뷰포트 중간선을 지난 마지막 섹션의 링크에 밑줄 ──
+  // 클릭 직후에는 스크롤이 끝날 때까지(scrollend, 최대 1.2s) 클릭한 항목을 고정해 중간 섹션이 깜빡이지 않게 한다.
+  const SECTIONS = ['founder', 'makes', 'companies', 'film', 'contact'];
+  const secEls = SECTIONS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+  const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('#site-nav a[href*="#"]'));
+  if (secEls.length && navLinks.length) {
+    let hold = 0; let raf = 0;
+    const mark = (id: string | null) => navLinks.forEach((a) => a.classList.toggle('is-current', !!id && a.hash === `#${id}`));
+    const spy = () => {
+      raf = 0;
+      if (performance.now() < hold) return;
+      const mid = window.innerHeight * 0.5; let cur: string | null = null;
+      for (const s of secEls) if (s.getBoundingClientRect().top <= mid) cur = s.id;
+      mark(cur);
     };
-    window.addEventListener('scroll', () => { if (!raf2) raf2 = requestAnimationFrame(update); }, { passive: true });
-    update();
+    const request = () => { if (!raf) raf = requestAnimationFrame(spy); };
+    navLinks.forEach((a) => a.addEventListener('click', () => { mark(a.hash.slice(1)); hold = performance.now() + 1200; }));
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('scrollend', () => { hold = 0; request(); });
+    window.addEventListener('resize', request);
+    spy();
   }
 </script>

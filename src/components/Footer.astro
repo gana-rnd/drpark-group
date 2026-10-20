@@ -1,5 +1,5 @@
 ---
-// 푸터 — RRE식 마무리: 큰 내비 + 사진 타일로 채운 DP 모자이크(고스트 아웃라인이 여기 맞물려 겹친 채 끝난다) + 회사·부지·대상 열.
+// 푸터 — RRE식 마무리: 큰 내비 + 사진 타일로 채운 DP 모자이크 + 회사·부지·대상 열.
 import dp from '../data/dp-path.json';
 import { getLangFromUrl, useTranslations, localizePath } from '../i18n/utils';
 import { group, companies, registrationsUrl } from '../data/group';
@@ -34,7 +34,7 @@ const nav = [['founder', t.nav.founder], ['makes', t.nav.makes], ['companies', t
       <div>
         <p class="h">{t.cta.title}</p>
         <p class="aud">{t.cta.body}</p>
-        <a class="bracket" href={registrationsUrl} rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
+        <a class="bracket" href={registrationsUrl} target="_blank" rel="noopener">{t.cta.btn}<span class="arr">→</span></a>
       </div>
     </div>
 
@@ -44,7 +44,7 @@ const nav = [['founder', t.nav.founder], ['makes', t.nav.makes], ['companies', t
         <p class="tag">{t.footer.tagline}</p>
       </nav>
       <div class="mosaic-wrap">
-        <div class="mosaic dp-target" data-dp-target data-dp-keep style="--dp-base:1">
+        <div class="mosaic">
           <svg class="dp-fill" viewBox={`0 0 ${dp.viewW} ${dp.viewH}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dr. Park Group">
             <defs><clipPath id="dpclip"><path d={dp.d} transform={tf} /></clipPath></defs>
             <g clip-path="url(#dpclip)">

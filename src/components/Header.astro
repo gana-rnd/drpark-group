@@ -1,6 +1,6 @@
 ---
 // 헤더 — 히어로 위에서는 투명(흰 글자), 스크롤하면 페이퍼 바(잉크 글자). Base.astro가 .is-scrolled를 토글한다.
-// 왼쪽은 DP 마크 + 워드마크, 오른쪽은 앵커 내비 + 언어 + 모바일 메뉴.
+// 왼쪽은 DP 마크 + 워드마크, 오른쪽은 앵커 내비 + 언어 + 모바일 메뉴. 내비의 .is-current(현재 섹션)는 HomePage.astro 스크립트가 토글한다.
 import DpMark from './DpMark.astro';
 import { getLangFromUrl, useTranslations, localizePath, stripLangFromPath, languages } from '../i18n/utils';
 
@@ -47,7 +47,7 @@ const nav = [
 <style>
   .hdr { position: fixed; left: 0; right: 0; top: 0; z-index: 60; color: #fff; transition: background 280ms var(--ease), color 280ms var(--ease), box-shadow 280ms var(--ease); }
   .hdr.is-scrolled, .hdr.nav-open { background: rgba(247,249,248,.86); -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%); color: var(--ink); box-shadow: 0 1px 0 rgba(22,34,44,.08), 0 10px 30px rgba(8,12,18,.08); }
-  .row { display: flex; align-items: center; justify-content: space-between; min-height: 72px; padding-inline: clamp(24px, 5.6vw, 80px); }
+  .row { display: flex; align-items: center; justify-content: space-between; min-height: 72px; max-width: var(--site-max); margin-inline: auto; padding-inline: clamp(24px, 5.6vw, 80px); }
   .brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; }
   .brand-mark { width: 34px; height: auto; display: block; }
   .brand .name { font-size: 12.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; }
@@ -55,7 +55,7 @@ const nav = [
   nav ul { display: flex; gap: clamp(18px, 2.4vw, 36px); list-style: none; }
   nav a { position: relative; font-size: 13px; font-weight: 600; letter-spacing: -.005em; padding-block: 6px; }
   nav a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 300ms var(--ease); }
-  nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+  nav a:hover::after, nav a.is-current::after { transform: scaleX(1); transform-origin: left; }
 
   .lang-switch { position: relative; }
   .lang-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; color: inherit; background: transparent; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; font: inherit; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; cursor: pointer; transition: border-color 200ms var(--ease); }
